@@ -25,9 +25,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
   const models: {id: ModelType, label: string, desc: string}[] = [
     { id: 'CAPM', label: 'CAPM', desc: 'Single Factor Beta' },
-    { id: 'FamaFrench3', label: '3-factor', desc: 'Size & Value' },
-    { id: 'FamaFrench5', label: '5-factor', desc: 'Profit & Invest' },
-    { id: 'FamaFrench7', label: 'FF7-Augmented', desc: 'QMJ* & PDF Integrated' },
+    { id: 'FamaFrench3', label: 'FF3', desc: 'Size & Value' },
+    { id: 'FamaFrench5', label: 'FF5', desc: 'Profit & Invest' },
+    { id: 'FamaFrench7', label: 'FF7 Factor Model', desc: 'QMJ* & PDF Integrated' },
     { id: 'LSTM', label: 'LSTM', desc: 'Neural Momentum' },
     { id: 'GRU', label: 'GRU', desc: 'Gated Recurrent' },
     { id: 'XGBoost', label: 'XGBoost', desc: 'Extreme Boosting' },
@@ -129,16 +129,17 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                       className={`
                         col-span-2 flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all backdrop-blur-sm
                         ${config.modelType === 'Ensemble'
-                          ? 'bg-indigo-600/90 border-indigo-700 ring-2 ring-indigo-400 ring-offset-1 text-white shadow-lg' 
+                          ? 'bg-indigo-50 border-indigo-400 ring-2 ring-indigo-400 text-indigo-700 shadow-md' 
                           : 'bg-indigo-50/40 border-indigo-200 hover:bg-indigo-100/60 text-indigo-700'}
                       `}
                     >
                       <div className="flex items-center gap-2">
-                        <Sparkles className={`w-3.5 h-3.5 ${config.modelType === 'Ensemble' ? 'text-indigo-200' : 'text-indigo-500'}`} />
+                        <Sparkles className={`w-3.5 h-3.5 ${config.modelType === 'Ensemble' ? 'text-indigo-600' : 'text-indigo-500'}`} />
                         <span className="text-[12px] font-black uppercase tracking-widest">Bayesian Ensemble</span>
                       </div>
-                      <span className={`text-[9px] font-bold mt-1 tracking-tight ${config.modelType === 'Ensemble' ? 'text-indigo-100' : 'text-indigo-600/80'}`}>
-                        Dynamic Multi-Model Integration (LSTM + GRU + XGB + LGBM)
+                      <span className={`text-[9px] font-bold mt-1 tracking-tight leading-tight ${config.modelType === 'Ensemble' ? 'text-indigo-600' : 'text-indigo-600/80'}`}>
+                        Dynamic Multi-Model Integration<br/>
+                        (LSTM + GRU + XGBoost + LightGBM)
                       </span>
                     </button>
                   </div>
@@ -151,7 +152,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         <div className="md:col-span-6 border-x border-slate-100 px-6">
           <div className="mb-3">
             <h4 className="text-[9px] uppercase font-bold text-slate-400 tracking-widest mb-2 border-l-2 border-slate-300 pl-2">
-              Asset Pricing Factors (자산 가격 결정 요인)
+              Asset Pricing Factors (FF7 Factor Model)
             </h4>
             <div className="grid grid-cols-2 gap-x-5 gap-y-3">
               
@@ -325,10 +326,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></div>
                Simulation Engine
              </h5>
-             <p className="text-[9px] text-slate-700 leading-relaxed font-medium mb-2.5 tracking-tight">
+             <p className="text-[9px] text-slate-700 leading-relaxed font-medium mb-2.5 tracking-tight text-justify break-keep">
                {getAlgorithmDescription()}
              </p>
-             <div className="text-[8px] text-slate-500 font-bold border-t border-slate-200 pt-2 leading-tight tracking-tight">
+             <div className="text-[8px] text-slate-500 font-bold border-t border-slate-200 pt-2 leading-tight tracking-tight text-justify break-keep">
                지정된 참조 시장의 거시적 경로를 기계학습 모델이 실시간으로 대조 분석하여, 한국 시장 고유의 밸류업 팩터와 결합된 하이브리드 전망치를 도출합니다.
              </div>
           </div>
@@ -367,7 +368,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         <div className="flex items-center gap-2 w-full md:w-auto">
           <button 
             onClick={onRunSimulation}
-            className="flex-1 md:w-48 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-black py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all transform active:scale-95 uppercase tracking-wider"
+            className="flex-1 md:w-36 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-black py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all transform active:scale-95 uppercase tracking-wider"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             Run Model
@@ -376,7 +377,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           <button 
             onClick={onAIAnalysis}
             disabled={isAnalyzing}
-            className={`flex-1 md:w-48 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black py-3 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-all transform active:scale-95 uppercase tracking-wider ${isAnalyzing ? 'opacity-70 cursor-not-allowed' : ''}`}
+            className={`flex-1 md:w-36 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black py-3 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-all transform active:scale-95 uppercase tracking-wider ${isAnalyzing ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
             {isAnalyzing ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />

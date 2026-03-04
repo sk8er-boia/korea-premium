@@ -34,7 +34,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-indigo-500 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#FCFBF9] text-slate-900 selection:bg-[#8B0029] selection:text-white overflow-x-hidden">
       <Steps
         enabled={stepsEnabled}
         steps={introSteps}
@@ -52,19 +52,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
       <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-32">
         {/* Background Gradients */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-600/20 rounded-full blur-[120px] animate-pulse delay-1000"></div>
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#8B0029]/5 rounded-full blur-[120px] animate-pulse"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/50 rounded-full blur-[120px] animate-pulse delay-1000"></div>
           
           {/* Grid Pattern */}
-          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#8B0029 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
         </div>
 
         <div className="absolute top-10 right-10 z-50">
           <button 
             onClick={() => setStepsEnabled(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all text-[10px] font-black uppercase tracking-widest"
+            className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-full shadow-sm transition-all text-[10px] font-black uppercase tracking-widest text-slate-600"
           >
-            <HelpCircle className="w-3 h-3 text-indigo-400" />
+            <HelpCircle className="w-3 h-3 text-[#8B0029]" />
             Platform Tour
           </button>
         </div>
@@ -79,56 +79,60 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full mb-8 backdrop-blur-md"
+            className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-slate-200 rounded-full mb-8 shadow-sm backdrop-blur-md"
           >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8B0029] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#8B0029]"></span>
             </span>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">V2.0 Quantum Intelligence Engine</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8B0029]">V3 Premium Engine</span>
           </motion.div>
 
-          <h1 id="hero-title" className="text-6xl md:text-[120px] font-black mb-8 tracking-tighter leading-[0.85] uppercase">
+          <h1 id="hero-title" className="text-6xl md:text-[120px] font-black mb-8 tracking-tighter leading-[0.85] uppercase text-slate-900">
             Korea <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40">Value-Up</span> <br/>
-            <span className="text-indigo-500">Simulator</span>
+            <div className="relative inline-block my-4">
+              <div className="absolute inset-0 bg-slate-900 -mx-10 md:-mx-20"></div>
+              <span className="relative text-white">Value-Up</span>
+            </div> <br/>
+            <span className="text-[#8B0029]">Simulator</span>
           </h1>
 
-          <p className="text-slate-400 text-lg md:text-xl font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
-            코리아 디스카운트 해소를 위한 7요인 증강 프레임워크 기반 시뮬레이터. 
-            글로벌 선진 시장(일본, 미국 등)의 성공 사례를 전이 학습(Transfer Learning)하여 2030년까지의 가치 회복 경로를 정밀하게 예측합니다.
+          <p className="text-slate-600 text-lg md:text-xl font-medium mb-12 max-w-3xl mx-auto leading-relaxed text-justify break-keep">
+            코리아 디스카운트 해소를 위한 7요인 증강 프레임워크 기반 시뮬레이터 <br/><br/>
+            글로벌 선진 시장(일본, 미국 등)의 성공 사례를 전이 학습(Transfer Learning)을 통해 <br/>
+            2026년~2030년까지의 가치 회복 경로를 정밀하게 예측합니다.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button 
               id="start-button"
               onClick={onStart}
-              className="group relative px-12 py-5 bg-white text-black font-black rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.1)] flex items-center gap-3 overflow-hidden"
+              className="group relative px-12 py-5 bg-[#8B0029] text-white font-black rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-[0_20px_40px_rgba(139,0,41,0.2)] flex items-center gap-3 overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-emerald-500 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
               <Play className="w-5 h-5 fill-current" />
               시뮬레이션 엔진 가동
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             
-            <div id="engine-stats" className="flex items-center gap-8 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl">
+            <div id="engine-stats" className="flex items-center gap-8 px-8 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm backdrop-blur-xl">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-500/20 rounded-lg">
-                  <Cpu className="w-5 h-5 text-indigo-400" />
+                <div className="p-2 bg-[#8B0029]/10 rounded-lg">
+                  <Cpu className="w-5 h-5 text-[#8B0029]" />
                 </div>
                 <div className="text-left">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Engine</p>
-                  <p className="text-sm font-black text-white">FF7 + AI</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Engine</p>
+                  <p className="text-sm font-black text-slate-900">FF7 + AI</p>
                 </div>
               </div>
-              <div className="w-px h-8 bg-white/10"></div>
+              <div className="w-px h-8 bg-slate-200"></div>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-500/20 rounded-lg">
-                  <BarChart3 className="w-5 h-5 text-emerald-400" />
+                <div className="p-2 bg-slate-100 rounded-lg">
+                  <BarChart3 className="w-5 h-5 text-slate-600" />
                 </div>
                 <div className="text-left">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Analysis</p>
-                  <p className="text-sm font-black text-white">SHAP / RIM</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Analysis</p>
+                  <p className="text-sm font-black text-slate-900">SHAP / RIM</p>
                 </div>
               </div>
             </div>
@@ -138,28 +142,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         {/* Floating Stats */}
         <div className="absolute bottom-20 left-10 hidden xl:block">
           <div className="space-y-4">
-            <div className="flex items-center gap-3 opacity-40">
-              <div className="w-12 h-[1px] bg-white"></div>
-              <span className="text-[10px] font-bold tracking-widest uppercase">Market Data Sync</span>
+            <div className="flex items-center gap-3 opacity-20">
+              <div className="w-12 h-[1px] bg-slate-900"></div>
+              <span className="text-[10px] font-bold tracking-widest uppercase text-slate-900">Market Data Sync</span>
             </div>
-            <div className="flex items-center gap-3 opacity-40">
-              <div className="w-12 h-[1px] bg-white"></div>
-              <span className="text-[10px] font-bold tracking-widest uppercase">Real-time Inference</span>
+            <div className="flex items-center gap-3 opacity-20">
+              <div className="w-12 h-[1px] bg-slate-900"></div>
+              <span className="text-[10px] font-bold tracking-widest uppercase text-slate-900">Real-time Inference</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section id="framework-section" className="py-32 px-4 bg-white text-black">
+      <section id="framework-section" className="py-32 px-4 bg-white text-slate-900">
         <div className="max-w-7xl mx-auto">
           <div className="mb-20">
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-6">
-              The Value-Up <br/>
-              <span className="text-indigo-600">Framework</span>
+              The Value-Up <span className="text-[#8B0029]">Framework</span>
             </h2>
             <p className="text-slate-500 max-w-xl font-medium">
-              단순한 지수 예측을 넘어, 기업 거버넌스, 주주 환원, 자본 효율성 등 7가지 핵심 요인을 분석하여 대한민국 시장의 본질적인 가치 상승 경로를 제시합니다.
+              단순한 지수 예측을 넘어, 기업 거버넌스, 주주 환원, 자본 효율성 등 <br/><br/>
+              7가지 핵심 요인을 분석하여 대한민국 시장의 본질적인 가치 상승 경로를 제시합니다.
             </p>
           </div>
 
@@ -168,12 +172,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               {
                 icon: <Globe className="w-6 h-6" />,
                 title: "Transfer Learning",
-                desc: "글로벌 벤치마크 시장(일본, 미국 등)의 가치 제고 및 주주 환원 정책 사례를 학습하여 한국 시장의 특수성에 맞춰 적용합니다."
+                desc: "글로벌 벤치마크 시장(일본, 미국 등)의 가치 제고 및 주주 환원 정책 사례를 학습 한국 시장의 특수성에 맞춰 적용합니다."
               },
               {
                 icon: <TrendingUp className="w-6 h-6" />,
-                title: "7-Factor Model",
-                desc: "Beta, SMB, HML, RMW, CMA, QMJ 그리고 Policy Drive(λ)를 결합한 고도화된 모델링."
+                title: "FF7 Factor Model",
+                desc: (
+                  <>
+                    Beta, SMB, HML, RMW, CMA <br />
+                    QMJ (SCI cycle 반영)와 <br />
+                    PDF (Policy Drive)를
+                  </>
+                )
               },
               {
                 icon: <ShieldCheck className="w-6 h-6" />,
@@ -184,13 +194,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               <motion.div 
                 key={i}
                 whileHover={{ y: -10 }}
-                className="p-10 bg-slate-50 rounded-[32px] border border-slate-200 transition-all hover:shadow-2xl hover:shadow-indigo-500/10"
+                className="p-10 bg-[#FCFBF9] rounded-[32px] border border-slate-100 transition-all hover:shadow-2xl hover:shadow-[#8B0029]/5 flex flex-col items-center text-center"
               >
-                <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mb-8 text-indigo-600">
+                <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mb-8 text-[#8B0029]">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-black mb-4 uppercase tracking-tight">{feature.title}</h3>
-                <p className="text-slate-500 leading-relaxed font-medium">
+                <h3 className="text-xl font-black mb-4 uppercase tracking-tight whitespace-nowrap">{feature.title}</h3>
+                <p className="text-slate-500 leading-relaxed font-medium text-justify break-keep">
                   {feature.desc}
                 </p>
               </motion.div>
@@ -200,25 +210,39 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
       </section>
 
       {/* Footer */}
-      <footer className="py-20 px-4 border-t border-white/10">
+      <footer className="py-20 px-4 border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-black font-black">KV</div>
-            <span className="font-black tracking-tighter uppercase">Korea Value-Up Simulator</span>
+            <div className="w-10 h-10 bg-[#8B0029] rounded-xl flex items-center justify-center text-white font-black">KV</div>
+            <span className="font-black tracking-tighter uppercase text-slate-900">Korea Value-Up Simulator</span>
           </div>
-          <div className="flex gap-10">
+          <div className="flex flex-wrap justify-center md:justify-start gap-10">
             <div className="text-center md:text-left">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Data Sources</p>
-              <p className="text-xs font-medium text-slate-400">KRX, TSE, St. Louis Fed (FRED)</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Data Sources</p>
+              <p className="text-xs font-medium text-slate-500">KRX, TSE, St. Louis Fed (FRED)</p>
             </div>
             <div className="text-center md:text-left">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Engine Version</p>
-              <p className="text-xs font-medium text-slate-400">v2.0.4-stable</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Engine Version</p>
+              <p className="text-xs font-medium text-slate-500">v2.1.20260304</p>
+            </div>
+            <div className="text-center md:text-left">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Legal & Contact</p>
+              <div className="flex flex-col gap-1">
+                <div className="flex gap-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <button className="hover:text-[#8B0029] transition-colors">이용약관</button>
+                  <a href="mailto:mash_mellow@naver.com" className="hover:text-[#8B0029] transition-colors">문의하기</a>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <a href="https://solab.korea.ac.kr/" target="_blank" rel="noopener noreferrer" className="text-sm font-black text-[#8B0029] hover:underline uppercase tracking-tight">
+                    고려대 기술경영전문대학원 SO Lab
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-            © 2026 Financial Intelligence Lab.
-          </p>
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center md:text-right">
+            <p>Copyright © 2026 SMART OPERATIONS LAB. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

@@ -155,11 +155,11 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
   }
 
   const comparisonData = [
-    { name: 'LSTM', accuracy: 0.91, auc: 0.89 },
-    { name: 'GRU', accuracy: 0.89, auc: 0.87 },
-    { name: 'XGBoost', accuracy: 0.93, auc: 0.91 },
-    { name: 'LightGBM', accuracy: 0.94, auc: 0.92 },
-    { name: 'Ensemble', accuracy: 0.96, auc: 0.95 }
+    { name: 'LSTM', accuracy: 0.82, auc: 0.79, precision: 0.78, recall: 0.77, f1: 0.77, prAuc: 0.76 },
+    { name: 'GRU', accuracy: 0.80, auc: 0.77, precision: 0.76, recall: 0.75, f1: 0.75, prAuc: 0.74 },
+    { name: 'XGBoost', accuracy: 0.85, auc: 0.83, precision: 0.82, recall: 0.81, f1: 0.81, prAuc: 0.80 },
+    { name: 'LightGBM', accuracy: 0.86, auc: 0.84, precision: 0.83, recall: 0.82, f1: 0.82, prAuc: 0.81 },
+    { name: 'Ensemble', accuracy: 0.89, auc: 0.87, precision: 0.86, recall: 0.85, f1: 0.85, prAuc: 0.84 }
   ];
 
   if (isAI) {
@@ -167,19 +167,45 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
     features.push({ feature: 'Time Momentum', importance: 0.3 + Math.random() * 0.2 });
     features.push({ feature: 'Volatility Cluster', importance: 0.15 + Math.random() * 0.1 });
     
-    let baseAcc = 0.88;
-    let baseAuc = 0.85;
-    if (config.modelType === 'LSTM') { baseAcc = 0.91; baseAuc = 0.89; }
-    if (config.modelType === 'GRU') { baseAcc = 0.89; baseAuc = 0.87; }
-    if (config.modelType === 'XGBoost') { baseAcc = 0.93; baseAuc = 0.91; }
-    if (config.modelType === 'LightGBM') { baseAcc = 0.94; baseAuc = 0.92; }
-    if (config.modelType === 'Ensemble') { baseAcc = 0.96; baseAuc = 0.95; }
+    // Realistic base metrics with noise
+    let base = { acc: 0.78, auc: 0.75, pre: 0.74, rec: 0.73, f1: 0.73, pr: 0.72 };
+    if (config.modelType === 'LSTM') base = { acc: 0.82, auc: 0.79, pre: 0.78, rec: 0.77, f1: 0.77, pr: 0.76 };
+    if (config.modelType === 'GRU') base = { acc: 0.80, auc: 0.77, pre: 0.76, rec: 0.75, f1: 0.75, pr: 0.74 };
+    if (config.modelType === 'XGBoost') base = { acc: 0.85, auc: 0.83, pre: 0.82, rec: 0.81, f1: 0.81, pr: 0.80 };
+    if (config.modelType === 'LightGBM') base = { acc: 0.86, auc: 0.84, pre: 0.83, rec: 0.82, f1: 0.82, pr: 0.81 };
+    if (config.modelType === 'Ensemble') base = { acc: 0.89, auc: 0.87, pre: 0.86, rec: 0.85, f1: 0.85, pr: 0.84 };
+
+    // Penalty for high volatility (Regime Shift Failure)
+    const volPenalty = config.volatility > 7 ? 0.08 : 0;
+    const noiseLevel = 0.05; // Increased noise
+
+    // Generate Calibration Curve with more noise
+    const calibrationCurve = Array.from({ length: 10 }, (_, i) => ({
+      predicted: (i + 1) / 10,
+      actual: Math.max(0, Math.min(1, ((i + 1) / 10) + (Math.random() * 0.15 - 0.075)))
+    }));
+
+    // Generate Confusion Matrix with more realistic error rates
+    const confusionMatrix = {
+      tp: Math.round(450 * (base.acc - volPenalty)),
+      tn: Math.round(400 * (base.acc - volPenalty)),
+      fp: Math.round(150 * (1 - (base.acc - volPenalty))),
+      fn: Math.round(200 * (1 - (base.acc - volPenalty)))
+    };
 
     return {
-      accuracy: baseAcc + Math.random() * 0.02,
-      rocAuc: baseAuc + Math.random() * 0.02,
+      accuracy: base.acc - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
+      rocAuc: base.auc - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
+      precision: base.pre - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
+      recall: base.rec - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
+      f1: base.f1 - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
+      prAuc: base.pr - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
+      logLoss: 0.35 + Math.random() * 0.2, // Higher log loss
+      brierScore: 0.18 + Math.random() * 0.1, // Higher brier score
+      calibrationCurve,
+      confusionMatrix,
       shapValues: features.sort((a, b) => b.importance - a.importance),
-      comparisonIndex: 1.15 + Math.random() * 0.2,
+      comparisonIndex: 1.05 + Math.random() * 0.15,
       comparisonData
     };
   } else {

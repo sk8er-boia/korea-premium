@@ -331,7 +331,7 @@ const AppContent = () => {
              </button>
              <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100 uppercase tracking-wider">
                 <Info className="w-3 h-3" />
-                Integrated 7-Factor Intelligence
+                Integrated FF7 Intelligence
              </div>
           </div>
         </div>
@@ -406,9 +406,9 @@ const AppContent = () => {
             <div className="flex justify-between items-start mb-1">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Value Trap (Worst)</h3>
             </div>
-            <p className="text-[9px] text-slate-500 leading-snug mb-3 font-medium tracking-tight">P-drive(λ=0) 부재 및 거버넌스 개혁 실패로 인한 저평가 지속 시나리오.</p>
+            <p className="text-[9px] text-slate-500 leading-snug mb-3 font-medium tracking-tight text-justify break-keep">P-drive(λ=0) 부재 및 거버넌스 개혁 실패로 인한 저평가 지속 시나리오.</p>
             <div className="flex items-baseline gap-2 mb-1.5">
-              <span className="text-3xl font-black text-slate-900 tracking-tighter">
+              <span className="text-2xl font-black text-slate-900 tracking-tighter">
                 {safeAlt1.length > 0 ? Math.round(getLatest(safeAlt1)).toLocaleString() : '-'}
               </span>
               <div className="flex items-center gap-1.5">
@@ -426,9 +426,9 @@ const AppContent = () => {
             <div className="flex justify-between items-start mb-1">
               <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Base Re-rating (Moderate)</h3>
             </div>
-            <p className="text-[9px] text-indigo-400/80 leading-snug mb-3 font-medium tracking-tight">Global Standard: 벤치마크 시장과의 제도적 동조화 및 거버넌스 개선을 통한 안정적 가치 회복 경로.</p>
+            <p className="text-[9px] text-indigo-400/80 leading-snug mb-3 font-medium tracking-tight text-justify break-keep">Global Standard: 벤치마크 시장과의 제도적 동조화 및 거버넌스 개선을 통한 안정적 가치 회복 경로.</p>
              <div className="flex items-baseline gap-2 mb-1.5">
-              <span className="text-3xl font-black text-slate-900 tracking-tighter">
+              <span className="text-2xl font-black text-slate-900 tracking-tighter">
                 {safeAlt2.length > 0 ? Math.round(getLatest(safeAlt2)).toLocaleString() : '-'}
               </span>
               <div className="flex items-center gap-1.5">
@@ -449,9 +449,9 @@ const AppContent = () => {
             <div className="flex justify-between items-start mb-1">
               <h3 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Full Convergence (Best)</h3>
             </div>
-            <p className="text-[9px] text-emerald-500/70 leading-snug mb-3 font-medium tracking-tight">강력한 P-drive(λ→1)와 QMJ 결합으로 선진국 시장 수준의 완전한 해소.</p>
+            <p className="text-[9px] text-emerald-500/70 leading-snug mb-3 font-medium tracking-tight text-justify break-keep">강력한 P-drive(λ→1)와 QMJ 결합으로 선진국 시장 수준의 완전한 해소.</p>
              <div className="flex items-baseline gap-2 mb-1.5">
-              <span className="text-3xl font-black text-slate-900 tracking-tighter">
+              <span className="text-2xl font-black text-slate-900 tracking-tighter">
                 {safeAlt3.length > 0 ? Math.round(getLatest(safeAlt3)).toLocaleString() : '-'}
               </span>
               <div className="flex items-center gap-1.5">
@@ -565,6 +565,39 @@ const AppContent = () => {
           alt3Data={safeAlt3}
         />
       </main>
+
+      <footer className="max-w-7xl mx-auto px-4 py-10 border-t border-slate-200 mt-10">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-[10px]">KV</div>
+            <span className="font-black text-xs tracking-tighter uppercase text-slate-900">Korea Value-Up Simulator</span>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-8">
+            <div className="text-center md:text-left">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Engine Version</p>
+              <p className="text-[11px] font-bold text-slate-600">v2.1.20260304</p>
+            </div>
+            <div className="text-center md:text-left">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Legal & Contact</p>
+              <div className="flex flex-col gap-1">
+                <div className="flex gap-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <button className="hover:text-indigo-600 transition-colors">이용약관</button>
+                  <a href="mailto:mash_mellow@naver.com" className="hover:text-indigo-600 transition-colors">문의하기</a>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <a href="https://solab.korea.ac.kr/" target="_blank" rel="noopener noreferrer" className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-tight">
+                    고려대 기술경영전문대학원 SO Lab
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center md:text-right">
+            <p>Copyright © 2026 SMART OPERATIONS LAB. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

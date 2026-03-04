@@ -43,11 +43,35 @@ export interface ModelComparisonData {
   name: string;
   accuracy: number;
   auc: number;
+  precision: number;
+  recall: number;
+  f1: number;
+  prAuc: number;
+}
+
+export interface CalibrationPoint {
+  predicted: number;
+  actual: number;
+}
+
+export interface ConfusionMatrix {
+  tp: number;
+  tn: number;
+  fp: number;
+  fn: number;
 }
 
 export interface ModelMetrics {
   accuracy?: number; // RMSE or R-squared
   rocAuc?: number; // Area Under Curve
+  precision?: number;
+  recall?: number;
+  f1?: number;
+  prAuc?: number;
+  logLoss?: number;
+  brierScore?: number;
+  calibrationCurve?: CalibrationPoint[];
+  confusionMatrix?: ConfusionMatrix;
   explanatoryPower?: number; // R-squared for statistical models
   shapValues: SHAPValue[];
   comparisonIndex: number; // Relative performance index
