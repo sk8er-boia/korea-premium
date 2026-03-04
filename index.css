@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@import "intro.js/introjs.css";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
