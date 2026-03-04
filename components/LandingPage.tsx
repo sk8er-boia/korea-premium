@@ -1,14 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Play, BarChart3, ShieldCheck, Zap, TrendingUp, Globe, Cpu, ArrowRight } from 'lucide-react';
+import { Steps } from 'intro.js-react';
+import { Play, BarChart3, ShieldCheck, Zap, TrendingUp, Globe, Cpu, ArrowRight, HelpCircle } from 'lucide-react';
 
 interface LandingPageProps {
   onStart: () => void;
 }
 
 const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
+  const [stepsEnabled, setStepsEnabled] = useState(false);
+
+  const introSteps = [
+    {
+      element: '#hero-title',
+      intro: '대한민국 자본시장의 가치 재평가를 위한 차세대 시뮬레이션 엔진입니다.',
+      position: 'bottom'
+    },
+    {
+      element: '#engine-stats',
+      intro: '7요인 모델과 AI 엔진을 결합하여 고도화된 분석 결과를 제공합니다.',
+      position: 'top'
+    },
+    {
+      element: '#framework-section',
+      intro: '글로벌 선진 시장의 사례를 분석한 3대 핵심 프레임워크를 확인해보세요.',
+      position: 'top'
+    },
+    {
+      element: '#start-button',
+      intro: '이제 시뮬레이션을 시작하여 2030년까지의 예측 경로를 확인해보세요!',
+      position: 'top'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-indigo-500 selection:text-white overflow-x-hidden">
+      <Steps
+        enabled={stepsEnabled}
+        steps={introSteps}
+        initialStep={0}
+        onExit={() => setStepsEnabled(false)}
+        options={{
+          nextLabel: '다음',
+          prevLabel: '이전',
+          doneLabel: '완료',
+          hidePrev: true,
+        }}
+      />
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-32">
         {/* Background Gradients */}
@@ -18,6 +57,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
           
           {/* Grid Pattern */}
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+        </div>
+
+        <div className="absolute top-10 right-10 z-50">
+          <button 
+            onClick={() => setStepsEnabled(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all text-[10px] font-black uppercase tracking-widest"
+          >
+            <HelpCircle className="w-3 h-3 text-indigo-400" />
+            Platform Tour
+          </button>
         </div>
 
         <motion.div 
@@ -39,7 +88,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">V2.0 Quantum Intelligence Engine</span>
           </motion.div>
 
-          <h1 className="text-6xl md:text-[120px] font-black mb-8 tracking-tighter leading-[0.85] uppercase">
+          <h1 id="hero-title" className="text-6xl md:text-[120px] font-black mb-8 tracking-tighter leading-[0.85] uppercase">
             Korea <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40">Value-Up</span> <br/>
             <span className="text-indigo-500">Simulator</span>
@@ -47,11 +96,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
           <p className="text-slate-400 text-lg md:text-xl font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
             코리아 디스카운트 해소를 위한 7요인 증강 프레임워크 기반 시뮬레이터. 
-            일본 시장의 성공 사례를 전이 학습(Transfer Learning)하여 2030년까지의 가치 회복 경로를 정밀하게 예측합니다.
+            글로벌 선진 시장(일본, 미국 등)의 성공 사례를 전이 학습(Transfer Learning)하여 2030년까지의 가치 회복 경로를 정밀하게 예측합니다.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button 
+              id="start-button"
               onClick={onStart}
               className="group relative px-12 py-5 bg-white text-black font-black rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.1)] flex items-center gap-3 overflow-hidden"
             >
@@ -61,7 +111,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             
-            <div className="flex items-center gap-8 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl">
+            <div id="engine-stats" className="flex items-center gap-8 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-indigo-500/20 rounded-lg">
                   <Cpu className="w-5 h-5 text-indigo-400" />
@@ -101,7 +151,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-32 px-4 bg-white text-black">
+      <section id="framework-section" className="py-32 px-4 bg-white text-black">
         <div className="max-w-7xl mx-auto">
           <div className="mb-20">
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-6">
@@ -118,7 +168,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               {
                 icon: <Globe className="w-6 h-6" />,
                 title: "Transfer Learning",
-                desc: "일본 도쿄증권거래소(TSE)의 'PBR 1배 미만 개선' 사례를 학습하여 한국 시장에 적용합니다."
+                desc: "글로벌 벤치마크 시장(일본, 미국 등)의 가치 제고 및 주주 환원 정책 사례를 학습하여 한국 시장의 특수성에 맞춰 적용합니다."
               },
               {
                 icon: <TrendingUp className="w-6 h-6" />,

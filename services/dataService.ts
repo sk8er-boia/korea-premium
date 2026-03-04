@@ -131,7 +131,7 @@ const calculateStandardNextStep = (prevVal: number, drift: number, volatility: n
 };
 
 const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
-  const isAI = ['LSTM', 'GRU', 'XGBoost', 'LightGBM'].includes(config.modelType);
+  const isAI = ['LSTM', 'GRU', 'XGBoost', 'LightGBM', 'Ensemble'].includes(config.modelType);
   
   let features = [
     { feature: 'Market Beta', importance: config.betaWeight * 0.4 },
@@ -142,25 +142,45 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
     features.push({ feature: 'Value (HML)', importance: config.hmlWeight * 0.15 });
   }
 
-  if (['FamaFrench5', 'FamaFrench7', ...(['LSTM', 'GRU', 'XGBoost', 'LightGBM'] as ModelType[])].includes(config.modelType)) {
+  const extendedModels: ModelType[] = ['FamaFrench5', 'FamaFrench7', 'LSTM', 'GRU', 'XGBoost', 'LightGBM', 'Ensemble'];
+  if (extendedModels.includes(config.modelType)) {
     features.push({ feature: 'Profit (RMW)', importance: config.rmwWeight * 0.1 });
     features.push({ feature: 'Invest (CMA)', importance: config.cmaWeight * 0.05 });
   }
 
-  if (['FamaFrench7', ...(['LSTM', 'GRU', 'XGBoost', 'LightGBM'] as ModelType[])].includes(config.modelType)) {
+  const advancedModels: ModelType[] = ['FamaFrench7', 'LSTM', 'GRU', 'XGBoost', 'LightGBM', 'Ensemble'];
+  if (advancedModels.includes(config.modelType)) {
     features.push({ feature: 'Quality (QMJ*)', importance: config.qmjWeight * 0.2 });
     features.push({ feature: 'Policy (PDF)', importance: config.pdfWeight * 0.25 });
   }
+
+  const comparisonData = [
+    { name: 'LSTM', accuracy: 0.91, auc: 0.89 },
+    { name: 'GRU', accuracy: 0.89, auc: 0.87 },
+    { name: 'XGBoost', accuracy: 0.93, auc: 0.91 },
+    { name: 'LightGBM', accuracy: 0.94, auc: 0.92 },
+    { name: 'Ensemble', accuracy: 0.96, auc: 0.95 }
+  ];
 
   if (isAI) {
     // Add AI specific features to SHAP
     features.push({ feature: 'Time Momentum', importance: 0.3 + Math.random() * 0.2 });
     features.push({ feature: 'Volatility Cluster', importance: 0.15 + Math.random() * 0.1 });
     
+    let baseAcc = 0.88;
+    let baseAuc = 0.85;
+    if (config.modelType === 'LSTM') { baseAcc = 0.91; baseAuc = 0.89; }
+    if (config.modelType === 'GRU') { baseAcc = 0.89; baseAuc = 0.87; }
+    if (config.modelType === 'XGBoost') { baseAcc = 0.93; baseAuc = 0.91; }
+    if (config.modelType === 'LightGBM') { baseAcc = 0.94; baseAuc = 0.92; }
+    if (config.modelType === 'Ensemble') { baseAcc = 0.96; baseAuc = 0.95; }
+
     return {
-      accuracy: 0.88 + Math.random() * 0.07, // 88% - 95%
+      accuracy: baseAcc + Math.random() * 0.02,
+      rocAuc: baseAuc + Math.random() * 0.02,
       shapValues: features.sort((a, b) => b.importance - a.importance),
-      comparisonIndex: 1.15 + Math.random() * 0.2
+      comparisonIndex: 1.15 + Math.random() * 0.2,
+      comparisonData
     };
   } else {
     // Statistical models
@@ -173,7 +193,8 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
     return {
       explanatoryPower: r2 + (Math.random() * 0.05),
       shapValues: features.sort((a, b) => b.importance - a.importance),
-      comparisonIndex: 1.0
+      comparisonIndex: 1.0,
+      comparisonData
     };
   }
 };
@@ -187,6 +208,49 @@ export const runSimulation = (
   const alt3: DataPoint[] = []; 
 
   const modelMetrics = generateModelMetrics(config);
+
+  // Calculate Dynamic Bayesian Weights based on environment
+  const calculateEnsembleWeights = (vol: number, horizon: number) => {
+    // Base weights
+    let w_lstm = 0.3;
+    let w_gru = 0.2;
+    let w_xgb = 0.35;
+    let w_lgbm = 0.15;
+
+    // Adjust for Volatility (High vol favors Boosting for jump detection)
+    if (vol > 7) {
+      w_xgb += 0.1;
+      w_lgbm += 0.05;
+      w_lstm -= 0.1;
+      w_gru -= 0.05;
+    } else if (vol < 3) {
+      w_lstm += 0.1;
+      w_gru += 0.05;
+      w_xgb -= 0.1;
+      w_lgbm -= 0.05;
+    }
+
+    // Adjust for Horizon (Long horizon favors LSTM for long-term dependencies)
+    if (horizon > 84) { // > 7 years
+      w_lstm += 0.1;
+      w_xgb -= 0.1;
+    }
+
+    // Normalize
+    const total = w_lstm + w_gru + w_xgb + w_lgbm;
+    return {
+      lstm: w_lstm / total,
+      gru: w_gru / total,
+      xgb: w_xgb / total,
+      lgbm: w_lgbm / total
+    };
+  };
+
+  const ensembleWeights = calculateEnsembleWeights(config.volatility, config.durationMonths);
+  if (config.modelType === 'Ensemble' && modelMetrics) {
+    // Store weights in metrics for UI display
+    (modelMetrics as any).ensembleWeights = ensembleWeights;
+  }
 
   if (!historyData || historyData.length === 0) return { 
     alt1, alt2, alt3, 
@@ -305,6 +369,23 @@ export const runSimulation = (
         val1 = calculateBoostingNextStep(val1, d1, simVol * 1.1);
         val2 = calculateBoostingNextStep(val2, d2, simVol * 1.1);
         val3 = calculateBoostingNextStep(val3, d3, simVol * 1.1);
+    } else if (config.modelType === 'Ensemble') {
+        // Dynamic Bayesian Weights based on environment
+        const { lstm: w_lstm, gru: w_gru, xgb: w_xgb, lgbm: w_lgbm } = ensembleWeights;
+        
+        // Simulate each component for one step and ensemble
+        const step_lstm = calculateLSTMNextStep(val2, d2, simVol * 0.8, m2);
+        const step_gru = calculateLSTMNextStep(val2, d2, simVol * 0.8, m2); // Simplified
+        const step_xgb = calculateBoostingNextStep(val2, d2, simVol * 1.1);
+        const step_lgbm = calculateBoostingNextStep(val2, d2, simVol * 1.1); // Simplified
+        
+        // Moderate path ensemble
+        val2 = (step_lstm.val * w_lstm) + (step_gru.val * w_gru) + (step_xgb * w_xgb) + (step_lgbm * w_lgbm);
+        m2 = (step_lstm.momentum * w_lstm) + (step_gru.momentum * w_gru);
+
+        // Same for others (simplified for worst/best)
+        val1 = calculateStandardNextStep(val1, d1, simVol);
+        val3 = calculateStandardNextStep(val3, d3, simVol * 1.2); // Ensemble often finds better alpha
     } else {
         val1 = calculateStandardNextStep(val1, d1, simVol);
         val2 = calculateStandardNextStep(val2, d2, simVol);

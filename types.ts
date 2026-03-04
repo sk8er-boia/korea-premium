@@ -2,7 +2,7 @@
 export type ScenarioType = 'history' | 'alt1_worst' | 'alt2_moderate' | 'alt3_best';
 export type ReferenceMarket = 'Japan' | 'Taiwan' | 'SP500' | 'NASDAQ' | 'DowJones' | 'Germany';
 export type TargetIndex = 'KOSPI' | 'KOSDAQ';
-export type ModelType = 'CAPM' | 'FamaFrench3' | 'FamaFrench5' | 'FamaFrench7' | 'LSTM' | 'GRU' | 'XGBoost' | 'LightGBM';
+export type ModelType = 'CAPM' | 'FamaFrench3' | 'FamaFrench5' | 'FamaFrench7' | 'LSTM' | 'GRU' | 'XGBoost' | 'LightGBM' | 'Ensemble';
 
 export interface DataPoint {
   date: string; // YYYY-MM-DD
@@ -39,11 +39,25 @@ export interface SHAPValue {
   importance: number;
 }
 
+export interface ModelComparisonData {
+  name: string;
+  accuracy: number;
+  auc: number;
+}
+
 export interface ModelMetrics {
   accuracy?: number; // RMSE or R-squared
+  rocAuc?: number; // Area Under Curve
   explanatoryPower?: number; // R-squared for statistical models
   shapValues: SHAPValue[];
   comparisonIndex: number; // Relative performance index
+  comparisonData?: ModelComparisonData[];
+  ensembleWeights?: {
+    lstm: number;
+    gru: number;
+    xgb: number;
+    lgbm: number;
+  };
 }
 
 export interface SimulationMetrics {

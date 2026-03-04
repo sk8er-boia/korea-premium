@@ -1,17 +1,22 @@
 
 import React from 'react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import { SimulationConfig, ModelType } from '../types';
 
 interface ControlPanelProps {
   config: SimulationConfig;
   setConfig: (c: SimulationConfig) => void;
   onRunSimulation: () => void;
+  onAIAnalysis: () => void;
+  isAnalyzing: boolean;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
   config,
   setConfig,
-  onRunSimulation
+  onRunSimulation,
+  onAIAnalysis,
+  isAnalyzing
 }) => {
   
   const updateConfig = (key: keyof SimulationConfig, value: any) => {
@@ -27,6 +32,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     { id: 'GRU', label: 'GRU', desc: 'Gated Recurrent' },
     { id: 'XGBoost', label: 'XGBoost', desc: 'Extreme Boosting' },
     { id: 'LightGBM', label: 'LightGBM', desc: 'Light Boosting' },
+    { id: 'Ensemble', label: 'Ensemble', desc: 'Bayesian Optimized' },
   ];
 
   const getAlgorithmDescription = () => {
@@ -39,6 +45,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       case 'GRU': return "게이트 순환 유닛(GRU): LSTM의 구조를 최적화하여 시장의 급격한 체제 전환(Regime Switching)과 변동성 클러스터링을 효과적으로 포착합니다.";
       case 'XGBoost': return "Extreme Gradient Boosting: 고성능 앙상블 학습을 통해 정책 변화와 산업 사이클의 상호작용에 따른 비연속적 가격 점프를 감지합니다.";
       case 'LightGBM': return "Leaf-wise Boosting: 대규모 파라미터 환경에서 미세한 잔차를 최소화하며, 참조 시장(TSE 등)과의 전이 학습(Transfer Learning) 결과를 실시간 반영합니다.";
+      case 'Ensemble': return "Bayesian Ensemble: LSTM, GRU, XGBoost, LightGBM을 베이시안 최적화 가중치(0.3, 0.2, 0.35, 0.15)로 결합하여 예측 안정성과 정확도를 극대화한 하이브리드 모델입니다.";
       default: return "알고리즘을 선택하면 엔진 상세 정보가 표시됩니다.";
     }
   };
@@ -98,7 +105,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                 <div>
                   <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1.5">AI / Machine Learning</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {models.slice(4).map(m => {
+                    {models.slice(4, 8).map(m => {
                       const isSelected = config.modelType === m.id;
                       return (
                         <button
@@ -116,6 +123,24 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                         </button>
                       );
                     })}
+                    {/* Ensemble Button - Full Width */}
+                    <button
+                      onClick={() => updateConfig('modelType', 'Ensemble')}
+                      className={`
+                        col-span-2 flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all backdrop-blur-sm
+                        ${config.modelType === 'Ensemble'
+                          ? 'bg-indigo-600/90 border-indigo-700 ring-2 ring-indigo-400 ring-offset-1 text-white shadow-lg' 
+                          : 'bg-indigo-50/40 border-indigo-200 hover:bg-indigo-100/60 text-indigo-700'}
+                      `}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles className={`w-3.5 h-3.5 ${config.modelType === 'Ensemble' ? 'text-indigo-200' : 'text-indigo-500'}`} />
+                        <span className="text-[12px] font-black uppercase tracking-widest">Bayesian Ensemble</span>
+                      </div>
+                      <span className={`text-[9px] font-bold mt-1 tracking-tight ${config.modelType === 'Ensemble' ? 'text-indigo-100' : 'text-indigo-600/80'}`}>
+                        Dynamic Multi-Model Integration (LSTM + GRU + XGB + LGBM)
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -273,11 +298,26 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <div className="flex justify-between items-start mb-1">
                <div className="flex flex-col">
                  <label className="text-[10px] font-bold text-slate-700 leading-tight">Volatility (변동성)</label>
-                 <span className="text-[7px] text-slate-400 leading-none font-medium">글로벌 경제 리스크 수준.</span>
+                 <span className="text-[7px] text-slate-400 leading-none font-medium">글로벌 경제 리스크 및 시장 불확실성 수준.</span>
                </div>
                <span className="text-[10px] font-bold text-slate-500 mt-0.5">Lv. {config.volatility}</span>
             </div>
             <input type="range" min="1" max="10" step="1" value={config.volatility} onChange={(e) => updateConfig('volatility', parseInt(e.target.value))} className="w-full h-1 bg-gray-200 rounded-lg appearance-none accent-gray-500 cursor-pointer" />
+            
+            {/* Volatility Legend */}
+            <div className="mt-2 grid grid-cols-5 gap-1">
+              {[1, 3, 5, 7, 10].map(lv => (
+                <div key={lv} className="flex flex-col items-center">
+                  <div className={`w-full h-1 rounded-full mb-1 ${lv <= config.volatility ? 'bg-slate-400' : 'bg-slate-100'}`}></div>
+                  <span className="text-[6px] font-bold text-slate-400 uppercase tracking-tighter">
+                    {lv === 1 ? 'Stable' : lv === 3 ? 'Normal' : lv === 5 ? 'Active' : lv === 7 ? 'High' : 'Crisis'}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-[7px] text-slate-400 leading-tight font-medium italic">
+              * 변동성이 높을수록 AI 모델은 비선형적 패턴과 꼬리 위험(Tail Risk)에 더 높은 가중치를 부여합니다.
+            </p>
           </div>
           
           <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
@@ -324,13 +364,28 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
            </div>
         </div>
         
-        <button 
-          onClick={onRunSimulation}
-          className="w-full md:w-56 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black py-3 rounded-lg shadow-md flex items-center justify-center gap-2 transition-all transform active:scale-95"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-          RUN SIMULATION
-        </button>
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <button 
+            onClick={onRunSimulation}
+            className="flex-1 md:w-48 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-black py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all transform active:scale-95 uppercase tracking-wider"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            Run Model
+          </button>
+
+          <button 
+            onClick={onAIAnalysis}
+            disabled={isAnalyzing}
+            className={`flex-1 md:w-48 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black py-3 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-all transform active:scale-95 uppercase tracking-wider ${isAnalyzing ? 'opacity-70 cursor-not-allowed' : ''}`}
+          >
+            {isAnalyzing ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5" />
+            )}
+            {isAnalyzing ? 'Analyzing...' : 'AI Analysis'}
+          </button>
+        </div>
       </div>
     </div>
   );

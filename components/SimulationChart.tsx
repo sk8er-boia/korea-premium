@@ -262,7 +262,9 @@ const SimulationChart: React.FC<SimulationChartProps> = ({
             domain={domain}
             ticks={ticks}
             tickFormatter={(ts) => new Date(ts).getFullYear().toString()} 
-            tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700, angle: -45, textAnchor: 'end' }} 
+            tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700, textAnchor: 'end' }} 
+            // @ts-ignore - angle is supported by recharts but not in the standard SVGProps type
+            angle={-45}
             axisLine={{ stroke: '#e2e8f0' }}
             interval={0}
           />
