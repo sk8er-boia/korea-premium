@@ -22,6 +22,9 @@ const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelTyp
             <Activity className="w-3.5 h-3.5 text-indigo-500" />
             Model Performance Indicators
           </h3>
+          <p className="text-[9px] text-slate-400 mb-4 leading-relaxed">
+            모델의 예측 정확도와 분류 성능을 종합적으로 평가합니다. 각 지표는 모델이 시장 데이터를 얼마나 신뢰성 있게 해석하고 예측하는지를 나타냅니다.
+          </p>
           
           <div className="space-y-5">
             {isAI ? (
@@ -94,7 +97,7 @@ const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelTyp
                 </p>
                 <div className="flex items-baseline gap-1.5">
                   <p className="text-xl font-black text-slate-800">x{metrics.comparisonIndex.toFixed(2)}</p>
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">vs. Base</span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">vs. {isAI ? 'Linear Regression' : 'Market Average'}</span>
                 </div>
               </div>
               <div>
@@ -115,6 +118,9 @@ const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelTyp
               <Target className="w-3.5 h-3.5 text-rose-500" />
               Feature Importance (SHAP Analysis)
             </h3>
+            <p className="text-[9px] text-slate-400 mt-2 leading-relaxed">
+              각 변수가 예측 결과에 미치는 영향력을 분석합니다. 변수별 기여도를 통해 모델이 어떤 핵심 요인을 바탕으로 시장을 분석하고 있는지 투명하게 확인할 수 있습니다.
+            </p>
             <div className="flex gap-2">
               {isAI && (
                 <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 uppercase">
@@ -156,13 +162,19 @@ const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelTyp
                 Model Calibration Curve
               </h3>
               <div className="flex gap-3">
-                <div className="flex items-center gap-1.5">
+                <div className="group relative flex items-center gap-1.5 cursor-help">
                   <span className="text-[8px] font-bold text-slate-400 uppercase">Log Loss:</span>
                   <span className="text-[9px] font-black text-slate-700">{metrics.logLoss?.toFixed(3)}</span>
+                  <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-slate-800 text-white text-[8px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-xl">
+                    예측 오차를 측정합니다. 낮을수록 예측이 실제값에 가깝고 정확합니다.
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="group relative flex items-center gap-1.5 cursor-help">
                   <span className="text-[8px] font-bold text-slate-400 uppercase">Brier:</span>
                   <span className="text-[9px] font-black text-slate-700">{metrics.brierScore?.toFixed(3)}</span>
+                  <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-slate-800 text-white text-[8px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-xl">
+                    예측의 정확도와 보정 정도를 측정합니다. 0에 가까울수록 예측이 정확합니다.
+                  </div>
                 </div>
               </div>
             </div>
@@ -192,7 +204,9 @@ const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelTyp
               </ResponsiveContainer>
             </div>
             <p className="mt-4 text-[9px] text-slate-400 font-medium leading-relaxed">
-              Calibration Curve는 모델이 예측한 확률과 실제 발생 빈도 사이의 일치도를 나타냅니다. 대각선에 가까울수록 모델의 신뢰도가 높음을 의미하며, 현재 모델은 낮은 Brier Score를 바탕으로 높은 예측 신뢰성을 보이고 있습니다.
+              Calibration Curve는 모델이 예측한 확률과 실제 발생 빈도 사이의 일치도를 나타냅니다. 대각선에 가까울수록 모델의 신뢰도가 높음을 의미합니다.<br/><br/>
+              • <strong>Log Loss:</strong> 예측 오차를 측정합니다. 낮을수록 예측이 실제값에 가깝고 정확합니다.<br/>
+              • <strong>Brier Score:</strong> 예측의 정확도와 보정 정도를 측정합니다. 0에 가까울수록 예측이 정확합니다.
             </p>
           </div>
 
@@ -277,11 +291,30 @@ const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelTyp
                     <Cell key={`cell-${index}`} fill={entry.name === modelType ? '#4f46e5' : '#e2e8f0'} />
                   ))}
                 </Bar>
-                <Bar dataKey="auc" name="ROC AUC" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#10b981', formatter: (v: number) => `${(v * 100).toFixed(0)}%` }} />
                 <Bar dataKey="f1" name="F1 Score" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#f59e0b', formatter: (v: number) => `${(v * 100).toFixed(0)}%` }} />
+                <Bar dataKey="auc" name="ROC AUC" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#10b981', formatter: (v: number) => `${(v * 100).toFixed(0)}%` }} />
                 <Bar dataKey="prAuc" name="PR AUC" fill="#ec4899" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#ec4899', formatter: (v: number) => `${(v * 100).toFixed(0)}%` }} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+          
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-[10px] text-slate-500">
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+              <p className="font-bold text-slate-700">Accuracy (R²):</p>
+              <p>모델이 전체 데이터 중 정답을 맞힌 비율입니다. R²는 모델이 실제 데이터의 변동성을 얼마나 잘 설명하는지를 나타내며, 100%에 가까울수록 모델의 예측력이 높고 데이터 설명력이 우수함을 의미합니다.</p>
+            </div>
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+              <p className="font-bold text-slate-700">F1 Score:</p>
+              <p>정밀도(Precision, 예측한 상승 중 실제 상승 비율)와 재현율(Recall, 실제 상승 중 모델이 포착한 비율)의 조화평균입니다. 데이터가 한쪽으로 치우쳐 있거나 불균형할 때 모델의 종합적인 성능을 평가하는 데 매우 유용합니다.</p>
+            </div>
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+              <p className="font-bold text-slate-700">ROC AUC:</p>
+              <p>모델이 '상승'과 '하락'을 얼마나 잘 구분하는지를 나타내는 지표입니다. 0.5는 무작위 예측과 같으며, 1에 가까울수록 상승과 하락을 구분하는 능력이 매우 뛰어남을 의미합니다.</p>
+            </div>
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+              <p className="font-bold text-slate-700">PR AUC:</p>
+              <p>정밀도(Precision)와 재현율(Recall)의 관계를 곡선 아래 면적으로 나타냅니다. 특히 '상승' 사례가 드문 불균형 데이터셋에서 모델이 얼마나 정확하게 상승을 포착하는지를 평가할 때 ROC AUC보다 더 정교한 성능 지표가 됩니다.</p>
+            </div>
           </div>
         </div>
       )}
