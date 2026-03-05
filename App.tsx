@@ -585,16 +585,11 @@ const AppContent = () => {
                   <button className="hover:text-indigo-600 transition-colors">이용약관</button>
                   <a href="mailto:mash_mellow@naver.com" className="hover:text-indigo-600 transition-colors">문의하기</a>
                 </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <a href="https://solab.korea.ac.kr/" target="_blank" rel="noopener noreferrer" className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-tight">
-                    고려대 기술경영전문대학원 SO Lab
-                  </a>
-                </div>
               </div>
             </div>
           </div>
           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center md:text-right">
-            <p>Copyright © 2026 SMART OPERATIONS LAB. All rights reserved.</p>
+            <p>Copyright © 2026 SMART OPERATIONS LAB.<br />All rights reserved.</p>
           </div>
         </div>
       </footer>

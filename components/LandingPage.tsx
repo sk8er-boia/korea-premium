@@ -161,10 +161,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-6">
               The Value-Up <span className="text-[#8B0029]">Framework</span>
             </h2>
-            <p className="text-slate-500 max-w-xl font-medium">
-              단순한 지수 예측을 넘어, 기업 거버넌스, 주주 환원, 자본 효율성 등 <br/><br/>
-              7가지 핵심 요인을 분석하여 대한민국 시장의 본질적인 가치 상승 경로를 제시합니다.
-            </p>
+            <p className="text-slate-500 max-w-xl font-medium">단순한 지수 예측을 넘어, 기업 거버넌스, 주주 환원, 자본 효율성 등 7가지 핵심 요인을 분석하여 대한민국 시장의 본질적인 가치 상승 경로를 제시합니다.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -172,23 +169,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               {
                 icon: <Globe className="w-6 h-6" />,
                 title: "Transfer Learning",
-                desc: "글로벌 벤치마크 시장(일본, 미국 등)의 가치 제고 및 주주 환원 정책 사례를 학습 한국 시장의 특수성에 맞춰 적용합니다."
+                desc: "글로벌 벤치마크 시장(일본, 미국 등)의 가치 제고 및 주주 환원 정책 사례를 학습 한국 시장의 특수성에 맞도록 정교한 Tunning을 적용합니다."
               },
               {
                 icon: <TrendingUp className="w-6 h-6" />,
                 title: "FF7 Factor Model",
                 desc: (
                   <>
-                    Beta, SMB, HML, RMW, CMA <br />
-                    QMJ (SCI cycle 반영)와 <br />
-                    PDF (Policy Drive)를
+                    Beta, SMB, HML, RMW, CMA의 FF5에 <br />
+                    QMJ (SCI cycle 반영)와 PDF (Policy Drive) <br />
+                    요인을 추가하여 예측 모델을 구축합니다.
                   </>
                 )
               },
               {
                 icon: <ShieldCheck className="w-6 h-6" />,
                 title: "Scenario Analysis",
-                desc: "Worst, Moderate, Best 시나리오별 PBR 리레이팅 수준과 예상 지수를 실시간 시뮬레이션."
+                desc: "BMW 시나리오별, AI/ML 알고리즘별로 Forecasting한 결과를 PBR 리레이팅(Re-rating) 값과 함께 시뮬레이션할 수 있습니다."
               }
             ].map((feature, i) => (
               <motion.div 
@@ -231,11 +228,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 <div className="flex gap-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                   <button className="hover:text-[#8B0029] transition-colors">이용약관</button>
                   <a href="mailto:mash_mellow@naver.com" className="hover:text-[#8B0029] transition-colors">문의하기</a>
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <a href="https://solab.korea.ac.kr/" target="_blank" rel="noopener noreferrer" className="text-sm font-black text-[#8B0029] hover:underline uppercase tracking-tight">
-                    고려대 기술경영전문대학원 SO Lab
-                  </a>
                 </div>
               </div>
             </div>
