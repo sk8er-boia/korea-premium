@@ -1,16 +1,14 @@
 
 import React, { Component, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Steps } from 'intro.js-react';
-import { ArrowLeft, HelpCircle, Info, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, HelpCircle, Info } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { generateAllMarketData, runSimulation } from './services/dataService';
-import { analyzeSimulationResults } from './services/geminiService';
 import SimulationChart from './components/SimulationChart';
 import ControlPanel from './components/ControlPanel';
 import DataTable from './components/DataTable';
 import ModelMetricsPanel from './components/ModelMetricsPanel';
 import LandingPage from './components/LandingPage';
-import GeminiModal from './components/GeminiModal';
 import { DataPoint, SimulationConfig, SimulationMetrics, ModelMetrics } from './types';
 
 interface ErrorBoundaryProps { 
@@ -63,11 +61,6 @@ const AppContent = () => {
   const [stepsEnabled, setStepsEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [datasets, setDatasets] = useState<any>(null);
-  const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem('gemini_api_key'));
-  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const [snapshots, setSnapshots] = useState<{
     id: string;
@@ -127,46 +120,6 @@ const AppContent = () => {
 
   const handleManualRun = () => {
     runSim(datasets, config);
-    setAiAnalysis(null); // Clear previous analysis when config changes manually
-  };
-
-  const handleAIAnalysis = async () => {
-    if (!apiKey) {
-      setShowApiKeyModal(true);
-      return;
-    }
-
-    setIsAnalyzing(true);
-    setAnalysisError(null);
-    try {
-      const result = await analyzeSimulationResults(
-        apiKey,
-        config,
-        simResults.metrics!,
-        currentHistory,
-        { alt1: simResults.alt1, alt2: simResults.alt2, alt3: simResults.alt3 }
-      );
-      setAiAnalysis(result);
-    } catch (error: any) {
-      console.error("AI Analysis Error:", error);
-      if (error.message === "INVALID_API_KEY") {
-        setAnalysisError("유효하지 않은 API 키입니다. 키를 다시 확인해 주세요.");
-        localStorage.removeItem('gemini_api_key');
-        setApiKey(null);
-      } else {
-        setAnalysisError(error.message || "AI 분석 중 오류가 발생했습니다.");
-      }
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const saveApiKey = (key: string) => {
-    localStorage.setItem('gemini_api_key', key);
-    setApiKey(key);
-    setShowApiKeyModal(false);
-    // Automatically trigger analysis after saving key if it was requested
-    setTimeout(() => handleAIAnalysis(), 100);
   };
 
   const takeSnapshot = () => {
@@ -343,56 +296,8 @@ const AppContent = () => {
             config={config} 
             setConfig={setConfig} 
             onRunSimulation={handleManualRun} 
-            onAIAnalysis={handleAIAnalysis}
-            isAnalyzing={isAnalyzing}
           />
         </div>
-
-        {aiAnalysis && (
-          <div className="bg-white p-8 rounded-3xl shadow-xl border border-indigo-100 mb-6 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500"></div>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">AI Insights Report</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Powered by Gemini 3.0 Intelligence</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setAiAnalysis(null)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
-              >
-                <Loader2 className={`w-4 h-4 text-slate-300 ${isAnalyzing ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
-            
-            <div className="prose prose-slate max-w-none prose-sm prose-headings:font-black prose-headings:tracking-tight prose-headings:uppercase prose-p:font-medium prose-p:leading-relaxed prose-strong:text-indigo-600 prose-ul:font-medium">
-              <ReactMarkdown>{aiAnalysis}</ReactMarkdown>
-            </div>
-          </div>
-        )}
-
-        {analysisError && (
-          <div className="bg-rose-50 border border-rose-100 p-4 rounded-2xl mb-6 flex items-center gap-3 text-rose-600">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <p className="text-xs font-bold">{analysisError}</p>
-            <button 
-              onClick={() => setShowApiKeyModal(true)}
-              className="ml-auto text-[10px] font-black uppercase tracking-widest bg-rose-600 text-white px-3 py-1.5 rounded-lg hover:bg-rose-700 transition-all"
-            >
-              Update API Key
-            </button>
-          </div>
-        )}
-
-        <GeminiModal 
-          isOpen={showApiKeyModal} 
-          onClose={() => setShowApiKeyModal(false)} 
-          onSave={saveApiKey} 
-        />
 
         {safeMetrics.modelMetrics && (
           <div id="metrics-panel">

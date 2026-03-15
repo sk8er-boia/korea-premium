@@ -122,7 +122,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 </div>
                 <div className="text-left">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Engine</p>
-                  <p className="text-sm font-black text-slate-900">FF7 + AI</p>
+                  <p className="text-sm font-black text-slate-900">FF7 + ML</p>
                 </div>
               </div>
               <div className="w-px h-8 bg-slate-200"></div>

@@ -1,22 +1,17 @@
 
 import React from 'react';
-import { Sparkles, Loader2 } from 'lucide-react';
 import { SimulationConfig, ModelType } from '../types';
 
 interface ControlPanelProps {
   config: SimulationConfig;
   setConfig: (c: SimulationConfig) => void;
   onRunSimulation: () => void;
-  onAIAnalysis: () => void;
-  isAnalyzing: boolean;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
   config,
   setConfig,
   onRunSimulation,
-  onAIAnalysis,
-  isAnalyzing
 }) => {
   
   const updateConfig = (key: keyof SimulationConfig, value: any) => {
@@ -134,7 +129,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                       `}
                     >
                       <div className="flex items-center gap-2">
-                        <Sparkles className={`w-3.5 h-3.5 ${config.modelType === 'Ensemble' ? 'text-indigo-600' : 'text-indigo-500'}`} />
                         <span className="text-[12px] font-black uppercase tracking-widest">Bayesian Ensemble</span>
                       </div>
                       <span className={`text-[9px] font-bold mt-1 tracking-tight leading-tight ${config.modelType === 'Ensemble' ? 'text-indigo-600' : 'text-indigo-600/80'}`}>
@@ -372,19 +366,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             Run Model
-          </button>
-
-          <button 
-            onClick={onAIAnalysis}
-            disabled={isAnalyzing}
-            className={`flex-1 md:w-36 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black py-3 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-all transform active:scale-95 uppercase tracking-wider ${isAnalyzing ? 'opacity-70 cursor-not-allowed' : ''}`}
-          >
-            {isAnalyzing ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="w-3.5 h-3.5" />
-            )}
-            {isAnalyzing ? 'Analyzing...' : 'AI Analysis'}
           </button>
         </div>
       </div>
