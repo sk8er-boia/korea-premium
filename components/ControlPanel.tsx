@@ -40,7 +40,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       case 'GRU': return "게이트 순환 유닛(GRU): LSTM의 구조를 최적화하여 시장의 급격한 체제 전환(Regime Switching)과 변동성 클러스터링을 효과적으로 포착합니다.";
       case 'XGBoost': return "Extreme Gradient Boosting: 고성능 앙상블 학습을 통해 정책 변화와 산업 사이클의 상호작용에 따른 비연속적 가격 점프를 감지합니다.";
       case 'LightGBM': return "Leaf-wise Boosting: 대규모 파라미터 환경에서 미세한 잔차를 최소화하며, 참조 시장(TSE 등)과의 전이 학습(Transfer Learning) 결과를 실시간 반영합니다.";
-      case 'Ensemble': return "Bayesian Ensemble: LSTM, GRU, XGBoost, LightGBM을 베이시안 최적화 가중치(0.3, 0.2, 0.35, 0.15)로 결합하여 예측 안정성과 정확도를 극대화한 하이브리드 모델입니다.";
+      case 'Ensemble': return "Bayesian Ensemble: LSTM, GRU, XGBoost, LightGBM을 베이시안 최적화 가중치로 결합하여 예측 안정성과 정확도를 극대화한 하이브리드 모델입니다.";
       default: return "알고리즘을 선택하면 엔진 상세 정보가 표시됩니다.";
     }
   };
