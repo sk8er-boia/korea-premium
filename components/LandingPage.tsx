@@ -220,7 +220,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             </div>
             <div className="text-center md:text-left">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Engine Version</p>
-              <p className="text-xs font-medium text-slate-500">v2.1.20260304</p>
+              <p className="text-xs font-medium text-slate-500">v2.1.20260305 (updated on Mar.05, 2026)</p>
             </div>
             <div className="text-center md:text-left">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Legal & Contact</p>

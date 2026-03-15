@@ -12,6 +12,19 @@ interface ModelMetricsPanelProps {
 
 const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelType, config }) => {
   const isAI = ['LSTM', 'GRU', 'XGBoost', 'LightGBM', 'Ensemble'].includes(modelType);
+  
+  // Find current model data in comparisonData if available
+  const currentModelData = metrics.comparisonData?.find(m => m.name === modelType);
+  
+  // Use comparisonData values if available, otherwise fallback to top-level metrics
+  const displayMetrics = {
+    accuracy: currentModelData?.accuracy ?? metrics.accuracy ?? 0,
+    rocAuc: currentModelData?.auc ?? metrics.rocAuc ?? 0,
+    precision: currentModelData?.precision ?? metrics.precision ?? 0,
+    recall: currentModelData?.recall ?? metrics.recall ?? 0,
+    f1: currentModelData?.f1 ?? metrics.f1 ?? 0,
+    prAuc: currentModelData?.prAuc ?? metrics.prAuc ?? 0,
+  };
 
   return (
     <div className="space-y-6 mb-8">
@@ -32,45 +45,45 @@ const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelTyp
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">Accuracy (R²)</p>
-                    <p className="text-lg font-black text-indigo-600">{(metrics.accuracy! * 100).toFixed(1)}%</p>
+                    <p className="text-lg font-black text-indigo-600">{(displayMetrics.accuracy * 100).toFixed(1)}%</p>
                   </div>
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">ROC AUC</p>
-                    <p className="text-lg font-black text-emerald-600">{(metrics.rocAuc! * 100).toFixed(1)}%</p>
+                    <p className="text-lg font-black text-emerald-600">{(displayMetrics.rocAuc * 100).toFixed(1)}%</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-bold text-slate-500 uppercase">Precision</span>
-                    <span className="text-[10px] font-black text-slate-700">{(metrics.precision! * 100).toFixed(1)}%</span>
+                    <span className="text-[10px] font-black text-slate-700">{(displayMetrics.precision * 100).toFixed(1)}%</span>
                   </div>
                   <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
-                    <div className="bg-indigo-400 h-full" style={{ width: `${metrics.precision! * 100}%` }}></div>
+                    <div className="bg-indigo-400 h-full" style={{ width: `${displayMetrics.precision * 100}%` }}></div>
                   </div>
 
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-bold text-slate-500 uppercase">Recall</span>
-                    <span className="text-[10px] font-black text-slate-700">{(metrics.recall! * 100).toFixed(1)}%</span>
+                    <span className="text-[10px] font-black text-slate-700">{(displayMetrics.recall * 100).toFixed(1)}%</span>
                   </div>
                   <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
-                    <div className="bg-indigo-400 h-full" style={{ width: `${metrics.recall! * 100}%` }}></div>
+                    <div className="bg-indigo-400 h-full" style={{ width: `${displayMetrics.recall * 100}%` }}></div>
                   </div>
 
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-bold text-slate-500 uppercase">F1 Score</span>
-                    <span className="text-[10px] font-black text-slate-700">{(metrics.f1! * 100).toFixed(1)}%</span>
+                    <span className="text-[10px] font-black text-slate-700">{(displayMetrics.f1 * 100).toFixed(1)}%</span>
                   </div>
                   <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
-                    <div className="bg-indigo-400 h-full" style={{ width: `${metrics.f1! * 100}%` }}></div>
+                    <div className="bg-indigo-400 h-full" style={{ width: `${displayMetrics.f1 * 100}%` }}></div>
                   </div>
 
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-bold text-slate-500 uppercase">PR AUC</span>
-                    <span className="text-[10px] font-black text-slate-700">{(metrics.prAuc! * 100).toFixed(1)}%</span>
+                    <span className="text-[10px] font-black text-slate-700">{(displayMetrics.prAuc * 100).toFixed(1)}%</span>
                   </div>
                   <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
-                    <div className="bg-indigo-400 h-full" style={{ width: `${metrics.prAuc! * 100}%` }}></div>
+                    <div className="bg-indigo-400 h-full" style={{ width: `${displayMetrics.prAuc * 100}%` }}></div>
                   </div>
                 </div>
               </div>
@@ -286,14 +299,14 @@ const ModelMetricsPanel: React.FC<ModelMetricsPanelProps> = ({ metrics, modelTyp
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '11px', fontWeight: 'bold' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: 'bold', paddingTop: '10px' }} />
-                <Bar dataKey="accuracy" name="Accuracy (R²)" radius={[4, 4, 0, 0]} barSize={20} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#4f46e5', formatter: (v: number) => `${(v * 100).toFixed(0)}%` }}>
+                <Bar dataKey="accuracy" name="Accuracy (R²)" radius={[4, 4, 0, 0]} barSize={20} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#4f46e5', formatter: (v: number) => `${(v * 100).toFixed(1)}%` }}>
                   {metrics.comparisonData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.name === modelType ? '#4f46e5' : '#e2e8f0'} />
                   ))}
                 </Bar>
-                <Bar dataKey="f1" name="F1 Score" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#f59e0b', formatter: (v: number) => `${(v * 100).toFixed(0)}%` }} />
-                <Bar dataKey="auc" name="ROC AUC" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#10b981', formatter: (v: number) => `${(v * 100).toFixed(0)}%` }} />
-                <Bar dataKey="prAuc" name="PR AUC" fill="#ec4899" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#ec4899', formatter: (v: number) => `${(v * 100).toFixed(0)}%` }} />
+                <Bar dataKey="f1" name="F1 Score" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#f59e0b', formatter: (v: number) => `${(v * 100).toFixed(1)}%` }} />
+                <Bar dataKey="auc" name="ROC AUC" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#10b981', formatter: (v: number) => `${(v * 100).toFixed(1)}%` }} />
+                <Bar dataKey="prAuc" name="PR AUC" fill="#ec4899" radius={[4, 4, 0, 0]} barSize={20} opacity={0.6} label={{ position: 'top', fontSize: 8, fontWeight: 800, fill: '#ec4899', formatter: (v: number) => `${(v * 100).toFixed(1)}%` }} />
               </BarChart>
             </ResponsiveContainer>
           </div>

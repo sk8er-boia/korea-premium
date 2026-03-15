@@ -238,10 +238,10 @@ export const runSimulation = (
   // Calculate Dynamic Bayesian Weights based on environment
   const calculateEnsembleWeights = (vol: number, horizon: number) => {
     // Base weights
-    let w_lstm = 0.3;
-    let w_gru = 0.2;
-    let w_xgb = 0.35;
-    let w_lgbm = 0.15;
+    let w_lstm = 0.15;
+    let w_gru = 0.20;
+    let w_xgb = 0.30;
+    let w_lgbm = 0.35;
 
     // Adjust for Volatility (High vol favors Boosting for jump detection)
     if (vol > 7) {
