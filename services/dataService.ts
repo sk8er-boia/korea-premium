@@ -1,9 +1,25 @@
 
-import { DataPoint, SimulationConfig, ModelType, SimulationMetrics, ModelMetrics } from '../types';
+import { DataPoint, SimulationConfig, ModelType, SimulationMetrics, ModelMetrics, SimulationMode } from '../types';
+
+// Seeded PRNG (Mulberry32)
+let random = Math.random;
+export const setRandomSeed = (seed: number | null) => {
+  if (seed === null) {
+    random = Math.random;
+  } else {
+    let a = seed;
+    random = function() {
+      var t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+};
 
 const randomNormal = (mean: number, stdDev: number): number => {
-  const u1 = Math.random();
-  const u2 = Math.random();
+  const u1 = random();
+  const u2 = random();
   const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
   return z0 * stdDev + mean;
 };
@@ -121,7 +137,7 @@ const calculateLSTMNextStep = (prevVal: number, drift: number, volatility: numbe
 const calculateBoostingNextStep = (prevVal: number, drift: number, volatility: number): number => {
     const noise = randomNormal(0, volatility);
     let jump = 0;
-    if (Math.random() > 0.95) jump = (Math.random() - 0.4) * volatility * 5.0;
+    if (random() > 0.95) jump = (random() - 0.4) * volatility * 5.0;
     return prevVal * (1 + drift + noise + jump);
 };
 
@@ -164,8 +180,8 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
 
   if (isAI) {
     // Add AI specific features to SHAP
-    features.push({ feature: 'Time Momentum', importance: 0.3 + Math.random() * 0.2 });
-    features.push({ feature: 'Volatility Cluster', importance: 0.15 + Math.random() * 0.1 });
+    features.push({ feature: 'Time Momentum', importance: 0.3 + random() * 0.2 });
+    features.push({ feature: 'Volatility Cluster', importance: 0.15 + random() * 0.1 });
     
     // Realistic base metrics with noise
     let base = { acc: 0.78, auc: 0.75, pre: 0.74, rec: 0.73, f1: 0.73, pr: 0.72 };
@@ -182,7 +198,7 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
     // Generate Calibration Curve with more noise
     const calibrationCurve = Array.from({ length: 10 }, (_, i) => ({
       predicted: (i + 1) / 10,
-      actual: Math.max(0, Math.min(1, ((i + 1) / 10) + (Math.random() * 0.15 - 0.075)))
+      actual: Math.max(0, Math.min(1, ((i + 1) / 10) + (random() * 0.15 - 0.075)))
     }));
 
     // Generate Confusion Matrix with more realistic error rates
@@ -193,20 +209,43 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
       fn: Math.round(200 * (1 - (base.acc - volPenalty)))
     };
 
+    const accuracy = base.acc - volPenalty + (random() * noiseLevel - noiseLevel/2);
+    const rocAuc = base.auc - volPenalty + (random() * noiseLevel - noiseLevel/2);
+    const precision = base.pre - volPenalty + (random() * noiseLevel - noiseLevel/2);
+    const recall = base.rec - volPenalty + (random() * noiseLevel - noiseLevel/2);
+    const f1 = base.f1 - volPenalty + (random() * noiseLevel - noiseLevel/2);
+    const prAuc = base.pr - volPenalty + (random() * noiseLevel - noiseLevel/2);
+
+    // Update comparisonData for the current model to ensure consistency
+    const updatedComparisonData = comparisonData.map(m => {
+      if (m.name === config.modelType) {
+        return { 
+          ...m, 
+          accuracy, 
+          auc: rocAuc, 
+          precision, 
+          recall, 
+          f1, 
+          prAuc 
+        };
+      }
+      return m;
+    });
+
     return {
-      accuracy: base.acc - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
-      rocAuc: base.auc - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
-      precision: base.pre - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
-      recall: base.rec - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
-      f1: base.f1 - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
-      prAuc: base.pr - volPenalty + (Math.random() * noiseLevel - noiseLevel/2),
-      logLoss: 0.35 + Math.random() * 0.2, // Higher log loss
-      brierScore: 0.18 + Math.random() * 0.1, // Higher brier score
+      accuracy,
+      rocAuc,
+      precision,
+      recall,
+      f1,
+      prAuc,
+      logLoss: 0.35 + random() * 0.2, // Higher log loss
+      brierScore: 0.18 + random() * 0.1, // Higher brier score
       calibrationCurve,
       confusionMatrix,
       shapValues: features.sort((a, b) => b.importance - a.importance),
-      comparisonIndex: 1.05 + Math.random() * 0.15,
-      comparisonData
+      comparisonIndex: 1.05 + random() * 0.15,
+      comparisonData: updatedComparisonData
     };
   } else {
     // Statistical models
@@ -217,7 +256,7 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
     if (config.modelType === 'FamaFrench7') r2 = 0.86;
 
     return {
-      explanatoryPower: r2 + (Math.random() * 0.05),
+      explanatoryPower: r2 + (random() * 0.05),
       shapValues: features.sort((a, b) => b.importance - a.importance),
       comparisonIndex: 1.0,
       comparisonData
@@ -227,8 +266,11 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
 
 export const runSimulation = (
   historyData: DataPoint[], 
-  config: SimulationConfig
+  config: SimulationConfig,
+  mode: SimulationMode,
+  seed?: number
 ): { alt1: DataPoint[], alt2: DataPoint[], alt3: DataPoint[], metrics: SimulationMetrics } => {
+  setRandomSeed(seed !== undefined ? seed : null);
   const alt1: DataPoint[] = []; 
   const alt2: DataPoint[] = []; 
   const alt3: DataPoint[] = []; 

@@ -8,8 +8,10 @@ import SimulationChart from './components/SimulationChart';
 import ControlPanel from './components/ControlPanel';
 import DataTable from './components/DataTable';
 import ModelMetricsPanel from './components/ModelMetricsPanel';
+import ReportModal from './components/ReportModal';
+import ReviewModal from './components/ReviewModal';
 import LandingPage from './components/LandingPage';
-import { DataPoint, SimulationConfig, SimulationMetrics, ModelMetrics } from './types';
+import { DataPoint, SimulationConfig, SimulationMetrics, ModelMetrics, SimulationMode, SavedSimulation } from './types';
 
 interface ErrorBoundaryProps { 
   children?: ReactNode; 
@@ -60,16 +62,60 @@ const AppContent = () => {
   const [view, setView] = useState<'landing' | 'simulator'>('landing');
   const [stepsEnabled, setStepsEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [hasRunSimulation, setHasRunSimulation] = useState(false);
   const [datasets, setDatasets] = useState<any>(null);
 
-  const [snapshots, setSnapshots] = useState<{
-    id: string;
-    name: string;
-    results: any;
-    config: SimulationConfig;
-    visible: boolean;
-    timestamp: number;
-  }[]>([]);
+  const [snapshots, setSnapshots] = useState<SavedSimulation[]>(() => {
+    const saved = localStorage.getItem('kv_snapshots');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('kv_snapshots', JSON.stringify(snapshots));
+  }, [snapshots]);
+
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+  const handleSeeData = () => setIsReportModalOpen(true);
+  const handleSaveData = (name: string) => {
+    const newSnapshot = {
+      id: Math.random().toString(36).substr(2, 9),
+      name,
+      results: { ...simResults },
+      config: { ...config },
+      seed: lastSeed!,
+      visible: true,
+      timestamp: Date.now()
+    };
+    setSnapshots([...snapshots, newSnapshot]);
+  };
+
+  const handleBackup = () => {
+    const dataStr = JSON.stringify(snapshots, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `kv_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleRestore = (data: string) => {
+    try {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        setSnapshots(parsed);
+      } else {
+        throw new Error('Invalid data format');
+      }
+    } catch (err) {
+      console.error('Restore failed:', err);
+    }
+  };
 
   const [config, setConfig] = useState<SimulationConfig>({
     betaWeight: 1.0, 
@@ -101,14 +147,18 @@ const AppContent = () => {
     setLoading(false);
   }, []);
 
-  const runSim = useCallback((currentDatasets: any, currentConfig: SimulationConfig) => {
+  const runSim = useCallback((currentDatasets: any, currentConfig: SimulationConfig, mode: SimulationMode = 'simulation', seed?: number) => {
     if (!currentDatasets) return;
+
+    const effectiveSeed = seed !== undefined ? seed : Math.floor(Math.random() * 1000000);
+    setLastSeed(effectiveSeed);
+
     const fullHistory: DataPoint[] = currentConfig.targetIndex === 'KOSPI' ? currentDatasets.kospiData : currentDatasets.kosdaqData;
     const effectiveHistory = fullHistory.filter((pt: DataPoint) => {
         const year = parseInt(pt.date.split('-')[0]);
         return year <= currentConfig.historyCutoffYear;
     });
-    const results = runSimulation(effectiveHistory, currentConfig);
+    const results = runSimulation(effectiveHistory, currentConfig, mode, effectiveSeed);
     setSimResults({
       targetIndex: currentConfig.targetIndex,
       alt1: results.alt1,
@@ -118,19 +168,37 @@ const AppContent = () => {
     });
   }, []);
 
-  const handleManualRun = () => {
-    runSim(datasets, config);
+  const [lastSeed, setLastSeed] = useState<number | undefined>();
+
+  const handleManualRun = (mode: SimulationMode) => {
+    if (mode === 'simulation') {
+      setHasRunSimulation(true);
+      runSim(datasets, config, 'simulation');
+    } else {
+      setIsReviewModalOpen(true);
+    }
+  };
+
+  const runReviewFromSnapshot = (snapshotId: string) => {
+    const s = snapshots.find(snap => snap.id === snapshotId);
+    if (s) {
+      setConfig({ ...s.config });
+      setLastSeed(s.seed);
+      setHasRunSimulation(true);
+      setSimResults({ ...s.results });
+      setIsReviewModalOpen(false);
+    }
   };
 
   const takeSnapshot = () => {
-    const name = prompt('저장할 모델의 이름을 입력하세요:', `Model #${snapshots.length + 1}`);
-    if (!name) return;
+    const name = `Model #${snapshots.length + 1} (${new Date().toLocaleTimeString()})`;
 
     const newSnapshot = {
       id: Math.random().toString(36).substr(2, 9),
       name,
       results: { ...simResults },
       config: { ...config },
+      seed: lastSeed!,
       visible: true,
       timestamp: Date.now()
     };
@@ -149,7 +217,6 @@ const AppContent = () => {
     const s = snapshots.find(snap => snap.id === id);
     if (s) {
       setConfig({ ...s.config });
-      alert(`'${s.name}'의 설정이 적용되었습니다.`);
     }
   };
 
@@ -160,12 +227,12 @@ const AppContent = () => {
   };
 
   useEffect(() => {
-    if (datasets) runSim(datasets, config);
+    if (datasets && hasRunSimulation) runSim(datasets, config);
   }, [
       datasets, config.targetIndex, config.referenceMarket, config.historyCutoffYear, 
       config.modelType, config.betaWeight, config.smbWeight, config.hmlWeight, 
       config.rmwWeight, config.cmaWeight, config.qmjWeight, config.pdfWeight,
-      config.durationMonths, runSim
+      config.durationMonths, runSim, hasRunSimulation
   ]); 
 
   console.log("AppContent rendering", { loading, datasets: !!datasets, kospi: !!datasets?.kospiData });
@@ -234,13 +301,23 @@ const AppContent = () => {
 
   const getLatest = (arr: DataPoint[]) => arr.length > 0 ? arr[arr.length - 1].value : 0;
   const baselineValue = getLatest(currentHistory);
-  const getChange = (curr: number) => !baselineValue ? 0 : ((curr - baselineValue) / baselineValue) * 100;
-
   const getPBR = (currValue: number) => {
     if (!baselineValue) return 0;
     const basePBR = config.targetIndex === 'KOSPI' ? 0.92 : 1.82;
-    // PBR expands as the market re-rates
     return basePBR * (currValue / baselineValue);
+  };
+
+  const getChange = (curr: number) => !baselineValue ? 0 : ((curr - baselineValue) / baselineValue) * 100;
+
+  const latestValues = {
+    worst: getLatest(safeAlt1),
+    moderate: getLatest(safeAlt2),
+    best: getLatest(safeAlt3)
+  };
+  const pbrValues = {
+    worst: getPBR(latestValues.worst),
+    moderate: getPBR(latestValues.moderate),
+    best: getPBR(latestValues.best)
   };
 
   return (
@@ -296,16 +373,37 @@ const AppContent = () => {
             config={config} 
             setConfig={setConfig} 
             onRunSimulation={handleManualRun} 
+            onSeeData={handleSeeData}
           />
         </div>
 
-        {safeMetrics.modelMetrics && (
+        <ReportModal 
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          config={config}
+          metrics={safeMetrics}
+          onSaveData={handleSaveData}
+          latestValues={latestValues}
+          pbrValues={pbrValues}
+        />
+
+        <ReviewModal 
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          snapshots={snapshots}
+          onRun={runReviewFromSnapshot}
+          onDelete={removeSnapshot}
+          onBackup={handleBackup}
+          onRestore={handleRestore}
+        />
+
+        {hasRunSimulation && safeMetrics.modelMetrics && (
           <div id="metrics-panel">
             <ModelMetricsPanel metrics={safeMetrics.modelMetrics} modelType={config.modelType} config={config} />
           </div>
         )}
 
-        <div id="summary-cards" className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+        <div id="summary-cards" className={`grid grid-cols-1 md:grid-cols-3 gap-5 mb-6 ${!hasRunSimulation ? 'hidden' : ''}`}>
           <div className="bg-white py-4 px-6 rounded-2xl border border-slate-200 shadow-sm relative group transition-all hover:shadow-md">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-400 opacity-20 group-hover:opacity-100 transition-opacity"></div>
             <div className="flex justify-between items-start mb-1">
@@ -370,7 +468,58 @@ const AppContent = () => {
           </div>
         </div>
 
-        <div id="simulation-chart" className="bg-white p-4 rounded-3xl shadow-xl border border-slate-200 overflow-hidden mb-6 min-h-[600px]">
+        {/* Scenario Methodology Summary */}
+        <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 ${!hasRunSimulation ? 'hidden' : ''}`}>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Worst Case Methodology</h3>
+            </div>
+            <p className="text-[11px] text-slate-600 font-black mb-2">
+              <span className="text-slate-400 mr-1">[Formula]</span> Rf + (0.5 × Mkt) - (0.3 × SMB)
+            </p>
+            <p className="text-[11px] text-slate-500 leading-relaxed font-medium mb-3 text-justify break-keep">
+              거버넌스 개선 실패 및 반도체 사이클 하강을 가정합니다. 시장 프리미엄의 50%만 반영하며, 중소형주 역성장을 반영하여 보수적으로 산출합니다.
+            </p>
+            <p className="text-[10px] text-rose-600 font-bold leading-relaxed text-justify break-keep">
+              Rationale: 지배구조 개선의 지연, 코리아 디스카운트의 고착화, 반도체 업황 부진 및 주주 보호 미흡에 따른 국내 자본의 해외 이탈 리스크를 반영합니다.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-indigo-200 shadow-sm ring-1 ring-indigo-50">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
+              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Moderate Case Methodology</h3>
+            </div>
+            <p className="text-[11px] text-slate-600 font-black mb-2">
+              <span className="text-slate-400 mr-1">[Formula]</span> FF7 Model + RIM Expansion
+            </p>
+            <p className="text-[11px] text-slate-500 leading-relaxed font-medium mb-3 text-justify break-keep">
+              밸류업 정책(PDF) 안착과 품질 요인(QMJ*)의 글로벌 동조화를 가정합니다. 잔여이익모델(RIM)을 통해 시간이 흐를수록 멀티플이 점진적으로 확장되는 경로를 따릅니다.
+            </p>
+            <p className="text-[10px] text-indigo-600 font-bold leading-relaxed text-justify break-keep">
+              Rationale: 정부의 밸류업 가이드라인 준수 기업 확대, 주주 환원율의 점진적 상승(일본 수준 회복), 그리고 기업 투명성 제고에 따른 신뢰 회복을 전제로 합니다.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Best Case Methodology</h3>
+            </div>
+            <p className="text-[11px] text-slate-600 font-black mb-2">
+              <span className="text-slate-400 mr-1">[Formula]</span> Moderate + 4% Alpha Boost
+            </p>
+            <p className="text-[11px] text-slate-500 leading-relaxed font-medium mb-3 text-justify break-keep">
+              강력한 정책 추진과 반도체 슈퍼 사이클이 결합된 시나리오입니다. Moderate 대비 연 4%의 추가 알파를 부여하며, 가장 빠른 속도로 선진국 수준의 가치에 수렴합니다.
+            </p>
+            <p className="text-[10px] text-emerald-600 font-bold leading-relaxed text-justify break-keep">
+              Rationale: 코리아 디스카운트의 완전 해소, 지배구조 개선에 따른 자본 효율성 극대화, 그리고 MSCI 선진국 지수 편입에 따른 패시브 자금 유입 효과를 반영합니다.
+            </p>
+          </div>
+        </div>
+
+        <div id="simulation-chart" className={`bg-white p-4 rounded-3xl shadow-xl border border-slate-200 overflow-hidden mb-6 min-h-[600px] ${!hasRunSimulation ? 'hidden' : ''}`}>
           <div className="flex justify-between items-center mb-4 px-2">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
@@ -418,7 +567,7 @@ const AppContent = () => {
         </div>
 
         {snapshots.length > 0 && (
-          <div className="bg-white p-6 rounded-3xl shadow-xl border border-slate-200 mb-6">
+          <div className={`bg-white p-6 rounded-3xl shadow-xl border border-slate-200 mb-6 ${!hasRunSimulation ? 'hidden' : ''}`}>
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
               <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
               Saved Model Copies (복사본 목록)
@@ -453,6 +602,15 @@ const AppContent = () => {
                     >
                       Load Config
                     </button>
+                    <button 
+                      onClick={() => {
+                        setConfig({ ...s.config });
+                        handleManualRun('review');
+                      }}
+                      className="flex-1 text-[10px] font-bold py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-sm"
+                    >
+                      Run (Review)
+                    </button>
                   </div>
                 </div>
               ))}
@@ -460,15 +618,17 @@ const AppContent = () => {
           </div>
         )}
 
-        <DataTable 
-          historyData={currentHistory}
-          referenceData={currentReference}
-          referenceMarket={config.referenceMarket}
-          targetIndex={config.targetIndex}
-          alt1Data={safeAlt1}
-          alt2Data={safeAlt2}
-          alt3Data={safeAlt3}
-        />
+        <div className={!hasRunSimulation ? 'hidden' : ''}>
+          <DataTable 
+            historyData={currentHistory}
+            referenceData={currentReference}
+            referenceMarket={config.referenceMarket}
+            targetIndex={config.targetIndex}
+            alt1Data={safeAlt1}
+            alt2Data={safeAlt2}
+            alt3Data={safeAlt3}
+          />
+        </div>
       </main>
 
       <footer className="max-w-7xl mx-auto px-4 py-10 border-t border-slate-200 mt-10">
@@ -481,7 +641,7 @@ const AppContent = () => {
           <div className="flex flex-wrap justify-center gap-8">
             <div className="text-center md:text-left">
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Engine Version</p>
-              <p className="text-[11px] font-bold text-slate-600">v2.1.20260305 (updated on Mar.05, 2026)</p>
+              <p className="text-[11px] font-bold text-slate-600">updated on Mar.16, 2026</p>
             </div>
             <div className="text-center md:text-left">
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Legal & Contact</p>

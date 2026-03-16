@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Steps } from 'intro.js-react';
-import { Play, BarChart3, ShieldCheck, Zap, TrendingUp, Globe, Cpu, ArrowRight, HelpCircle } from 'lucide-react';
+import { Play, BarChart3, ShieldCheck, Zap, TrendingUp, TrendingDown, Globe, Cpu, ArrowRight, HelpCircle } from 'lucide-react';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -139,19 +139,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
           </div>
         </motion.div>
 
-        {/* Floating Stats */}
-        <div className="absolute bottom-20 left-10 hidden xl:block">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 opacity-20">
-              <div className="w-12 h-[1px] bg-slate-900"></div>
-              <span className="text-[10px] font-bold tracking-widest uppercase text-slate-900">Market Data Sync</span>
-            </div>
-            <div className="flex items-center gap-3 opacity-20">
-              <div className="w-12 h-[1px] bg-slate-900"></div>
-              <span className="text-[10px] font-bold tracking-widest uppercase text-slate-900">Real-time Inference</span>
-            </div>
-          </div>
-        </div>
+        {/* Floating Stats removed */}
       </section>
 
       {/* Features Grid */}
@@ -206,6 +194,73 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         </div>
       </section>
 
+      {/* Scenario Methodology Section */}
+      <section className="py-32 px-4 bg-[#FCFBF9]">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-20 text-center">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-6">
+              Forecasting <span className="text-[#8B0029]">Methodology</span>
+            </h2>
+            <p className="text-slate-500 max-w-2xl mx-auto font-medium">
+              시뮬레이션 엔진은 통계적 금융 모델(FF7)과 AI 알고리즘을 결합하여 세 가지 핵심 경로를 예측합니다.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
+                  <TrendingDown className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-black uppercase tracking-tight">Worst Case</h3>
+              </div>
+              <p className="text-[13px] text-slate-600 leading-relaxed font-black mb-4">
+                <span className="text-slate-400 mr-2">[Formula]</span>
+                Rf + (0.5 × Mkt) - (0.3 × SMB)
+              </p>
+              <p className="text-sm text-slate-500 leading-relaxed font-medium text-justify break-keep">
+                거버넌스 개선 실패 및 반도체 사이클 하강을 가정합니다. 시장 프리미엄의 50%만 반영하며, 중소형주 역성장을 반영하여 보수적으로 산출합니다.<br/>
+                <span className="text-rose-600 font-bold text-[10px] mt-2 block">Rationale: 지배구조 개선의 지연, 코리아 디스카운트의 고착화, 반도체 업황 부진 및 주주 보호 미흡에 따른 국내 자본의 해외 이탈(서학개미 가속화) 리스크를 반영한 시나리오입니다.</span>
+              </p>
+            </div>
+
+            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm ring-2 ring-slate-900/5">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-900">
+                  <BarChart3 className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-black uppercase tracking-tight">Moderate Case</h3>
+              </div>
+              <p className="text-[13px] text-slate-600 leading-relaxed font-black mb-4">
+                <span className="text-slate-400 mr-2">[Formula]</span>
+                FF7 Model + RIM Expansion
+              </p>
+              <p className="text-sm text-slate-500 leading-relaxed font-medium text-justify break-keep">
+                밸류업 정책(PDF) 안착과 품질 요인(QMJ*)의 글로벌 동조화를 가정합니다. 잔여이익모델(RIM)을 통해 시간이 흐를수록 멀티플이 점진적으로 확장되는 경로를 따릅니다.<br/>
+                <span className="text-slate-900 font-bold text-[10px] mt-2 block">Rationale: 정부의 밸류업 가이드라인 준수 기업 확대, 배당 및 자사주 소각 등 주주 환원율의 점진적 상승(일본 수준으로의 회복), 그리고 기업 투명성 제고에 따른 시장 신뢰 회복을 전제로 합니다.</span>
+              </p>
+            </div>
+
+            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-black uppercase tracking-tight">Best Case</h3>
+              </div>
+              <p className="text-[13px] text-slate-600 leading-relaxed font-black mb-4">
+                <span className="text-slate-400 mr-2">[Formula]</span>
+                Moderate + 4% Alpha Boost
+              </p>
+              <p className="text-sm text-slate-500 leading-relaxed font-medium text-justify break-keep">
+                강력한 정책 추진과 반도체 슈퍼 사이클이 결합된 시나리오입니다. Moderate 대비 연 4%의 추가 알파를 부여하며, 가장 빠른 속도로 선진국 수준의 가치에 수렴합니다.<br/>
+                <span className="text-emerald-600 font-bold text-[10px] mt-2 block">Rationale: 코리아 디스카운트의 완전 해소(PBR 1.0배 근접), 지배구조 개선에 따른 자본 효율성 극대화, 그리고 MSCI 선진국 지수 편입에 따른 글로벌 패시브 자금 유입 효과를 반영한 수치입니다.</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-20 px-4 border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
@@ -220,7 +275,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             </div>
             <div className="text-center md:text-left">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Engine Version</p>
-              <p className="text-xs font-medium text-slate-500">v2.1.20260305 (updated on Mar.05, 2026)</p>
+              <p className="text-xs font-medium text-slate-500">updated on Mar.16, 2026</p>
             </div>
             <div className="text-center md:text-left">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Legal & Contact</p>

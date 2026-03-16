@@ -3,6 +3,7 @@ export type ScenarioType = 'history' | 'alt1_worst' | 'alt2_moderate' | 'alt3_be
 export type ReferenceMarket = 'Japan' | 'Taiwan' | 'SP500' | 'NASDAQ' | 'DowJones' | 'Germany';
 export type TargetIndex = 'KOSPI' | 'KOSDAQ';
 export type ModelType = 'CAPM' | 'FamaFrench3' | 'FamaFrench5' | 'FamaFrench7' | 'LSTM' | 'GRU' | 'XGBoost' | 'LightGBM' | 'Ensemble';
+export type SimulationMode = 'simulation' | 'review';
 
 export interface DataPoint {
   date: string; // YYYY-MM-DD
@@ -89,4 +90,20 @@ export interface SimulationMetrics {
   moderateCAGR: number;
   bestCAGR: number;
   modelMetrics: ModelMetrics;
+}
+
+export interface SavedSimulation {
+  id: string;
+  name: string;
+  timestamp: number;
+  config: SimulationConfig;
+  seed: number;
+  visible: boolean;
+  results: {
+    targetIndex: string;
+    alt1: DataPoint[];
+    alt2: DataPoint[];
+    alt3: DataPoint[];
+    metrics?: SimulationMetrics;
+  };
 }
