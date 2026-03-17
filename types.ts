@@ -42,12 +42,12 @@ export interface SHAPValue {
 
 export interface ModelComparisonData {
   name: string;
-  accuracy: number;
-  auc: number;
-  precision: number;
-  recall: number;
-  f1: number;
-  prAuc: number;
+  mse: number;
+  rmse: number;
+  mae: number;
+  mape: number;
+  rSquared: number;
+  adjustedRSquared: number;
 }
 
 export interface CalibrationPoint {
@@ -63,17 +63,12 @@ export interface ConfusionMatrix {
 }
 
 export interface ModelMetrics {
-  accuracy?: number; // RMSE or R-squared
-  rocAuc?: number; // Area Under Curve
-  precision?: number;
-  recall?: number;
-  f1?: number;
-  prAuc?: number;
-  logLoss?: number;
-  brierScore?: number;
-  calibrationCurve?: CalibrationPoint[];
-  confusionMatrix?: ConfusionMatrix;
-  explanatoryPower?: number; // R-squared for statistical models
+  mse?: number;
+  rmse?: number;
+  mae?: number;
+  mape?: number;
+  rSquared?: number;
+  adjustedRSquared?: number;
   shapValues: SHAPValue[];
   comparisonIndex: number; // Relative performance index
   comparisonData?: ModelComparisonData[];

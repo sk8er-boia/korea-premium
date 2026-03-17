@@ -25,12 +25,12 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, config, metr
   
   // Use comparisonData values if available, otherwise fallback to top-level metrics
   const displayMetrics = {
-    accuracy: currentModelData?.accuracy ?? modelMetrics.accuracy ?? 0,
-    rocAuc: currentModelData?.auc ?? modelMetrics.rocAuc ?? 0,
-    precision: currentModelData?.precision ?? modelMetrics.precision ?? 0,
-    recall: currentModelData?.recall ?? modelMetrics.recall ?? 0,
-    f1: currentModelData?.f1 ?? modelMetrics.f1 ?? 0,
-    prAuc: currentModelData?.prAuc ?? modelMetrics.prAuc ?? 0,
+    mse: currentModelData?.mse ?? modelMetrics.mse ?? 0,
+    rmse: currentModelData?.rmse ?? modelMetrics.rmse ?? 0,
+    mae: currentModelData?.mae ?? modelMetrics.mae ?? 0,
+    mape: currentModelData?.mape ?? modelMetrics.mape ?? 0,
+    rSquared: currentModelData?.rSquared ?? modelMetrics.rSquared ?? 0,
+    adjustedRSquared: currentModelData?.adjustedRSquared ?? modelMetrics.adjustedRSquared ?? 0,
   };
 
   const handleSave = () => {
@@ -97,46 +97,28 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, config, metr
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Model Performance Indicators</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              {isAI ? (
-                <>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase">Accuracy (R²)</p>
-                    <p className="text-sm font-black text-slate-900">{(displayMetrics.accuracy * 100).toFixed(1)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase">ROC AUC</p>
-                    <p className="text-sm font-black text-slate-900">{(displayMetrics.rocAuc * 100).toFixed(1)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase">Precision</p>
-                    <p className="text-sm font-black text-slate-900">{(displayMetrics.precision * 100).toFixed(1)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase">Recall</p>
-                    <p className="text-sm font-black text-slate-900">{(displayMetrics.recall * 100).toFixed(1)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase">F1 Score</p>
-                    <p className="text-sm font-black text-slate-900">{(displayMetrics.f1 * 100).toFixed(1)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase">PR AUC</p>
-                    <p className="text-sm font-black text-slate-900">{(displayMetrics.prAuc * 100).toFixed(1)}%</p>
-                  </div>
-                </>
-              ) : (
-                <div>
-                  <p className="text-[9px] font-black text-slate-400 uppercase">Explanatory Power (Adj. R²)</p>
-                  <p className="text-sm font-black text-slate-900">{(modelMetrics.explanatoryPower! * 100).toFixed(1)}%</p>
-                </div>
-              )}
-              
-              {modelMetrics.logLoss !== undefined && (
-                <div>
-                  <p className="text-[9px] font-black text-slate-400 uppercase">Log Loss</p>
-                  <p className="text-sm font-black text-slate-900">{modelMetrics.logLoss.toFixed(4)}</p>
-                </div>
-              )}
+              <div>
+                <p className="text-[9px] font-bold text-slate-400 uppercase">R² / Adj. R²</p>
+                <p className="text-sm font-black text-slate-900">
+                  {(displayMetrics.rSquared * 100).toFixed(2)}% / {(displayMetrics.adjustedRSquared * 100).toFixed(2)}%
+                </p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-slate-400 uppercase">RMSE</p>
+                <p className="text-sm font-black text-slate-900">{displayMetrics.rmse.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-slate-400 uppercase">MSE</p>
+                <p className="text-sm font-black text-slate-900">{displayMetrics.mse.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-slate-400 uppercase">MAE</p>
+                <p className="text-sm font-black text-slate-900">{displayMetrics.mae.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-slate-400 uppercase">MAPE</p>
+                <p className="text-sm font-black text-slate-900">{(displayMetrics.mape * 100).toFixed(1)}%</p>
+              </div>
               {modelMetrics.comparisonIndex !== undefined && (
                 <div>
                   <p className="text-[9px] font-black text-slate-400 uppercase">Perf. Index</p>

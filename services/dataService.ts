@@ -1,5 +1,5 @@
 
-import { DataPoint, SimulationConfig, ModelType, SimulationMetrics, ModelMetrics, SimulationMode } from '../types';
+import { DataPoint, SimulationConfig, ModelType, SimulationMetrics, ModelMetrics, SimulationMode, ModelComparisonData } from '../types';
 
 // Seeded PRNG (Mulberry32)
 let random = Math.random;
@@ -170,98 +170,31 @@ const generateModelMetrics = (config: SimulationConfig): ModelMetrics => {
     features.push({ feature: 'Policy (PDF)', importance: config.pdfWeight * 0.25 });
   }
 
-  const comparisonData = [
-    { name: 'LSTM', accuracy: 0.82, auc: 0.79, precision: 0.78, recall: 0.77, f1: 0.77, prAuc: 0.76 },
-    { name: 'GRU', accuracy: 0.80, auc: 0.77, precision: 0.76, recall: 0.75, f1: 0.75, prAuc: 0.74 },
-    { name: 'XGBoost', accuracy: 0.85, auc: 0.83, precision: 0.82, recall: 0.81, f1: 0.81, prAuc: 0.80 },
-    { name: 'LightGBM', accuracy: 0.86, auc: 0.84, precision: 0.83, recall: 0.82, f1: 0.82, prAuc: 0.81 },
-    { name: 'Ensemble', accuracy: 0.89, auc: 0.87, precision: 0.86, recall: 0.85, f1: 0.85, prAuc: 0.84 }
+  const n = 1260;
+  const k = features.length;
+  const calcAdjR2 = (r2: number) => 1 - ((1 - r2) * (n - 1) / (n - k - 1));
+
+  const comparisonData: ModelComparisonData[] = [
+    { name: 'LSTM', mse: 120, rmse: 10.9, mae: 8.5, mape: 0.05, rSquared: 0.88, adjustedRSquared: calcAdjR2(0.88) },
+    { name: 'GRU', mse: 130, rmse: 11.4, mae: 9.0, mape: 0.06, rSquared: 0.86, adjustedRSquared: calcAdjR2(0.86) },
+    { name: 'XGBoost', mse: 105, rmse: 10.2, mae: 7.8, mape: 0.04, rSquared: 0.91, adjustedRSquared: calcAdjR2(0.91) },
+    { name: 'LightGBM', mse: 100, rmse: 10.0, mae: 7.5, mape: 0.04, rSquared: 0.92, adjustedRSquared: calcAdjR2(0.92) },
+    { name: 'Ensemble', mse: 85, rmse: 9.2, mae: 6.8, mape: 0.03, rSquared: 0.95, adjustedRSquared: calcAdjR2(0.95) }
   ];
 
-  if (isAI) {
-    // Add AI specific features to SHAP
-    features.push({ feature: 'Time Momentum', importance: 0.3 + random() * 0.2 });
-    features.push({ feature: 'Volatility Cluster', importance: 0.15 + random() * 0.1 });
-    
-    // Realistic base metrics with noise
-    let base = { acc: 0.78, auc: 0.75, pre: 0.74, rec: 0.73, f1: 0.73, pr: 0.72 };
-    if (config.modelType === 'LSTM') base = { acc: 0.82, auc: 0.79, pre: 0.78, rec: 0.77, f1: 0.77, pr: 0.76 };
-    if (config.modelType === 'GRU') base = { acc: 0.80, auc: 0.77, pre: 0.76, rec: 0.75, f1: 0.75, pr: 0.74 };
-    if (config.modelType === 'XGBoost') base = { acc: 0.85, auc: 0.83, pre: 0.82, rec: 0.81, f1: 0.81, pr: 0.80 };
-    if (config.modelType === 'LightGBM') base = { acc: 0.86, auc: 0.84, pre: 0.83, rec: 0.82, f1: 0.82, pr: 0.81 };
-    if (config.modelType === 'Ensemble') base = { acc: 0.89, auc: 0.87, pre: 0.86, rec: 0.85, f1: 0.85, pr: 0.84 };
+  const currentModelData = comparisonData.find(m => m.name === config.modelType) || comparisonData[4];
 
-    // Penalty for high volatility (Regime Shift Failure)
-    const volPenalty = config.volatility > 7 ? 0.08 : 0;
-    const noiseLevel = 0.05; // Increased noise
-
-    // Generate Calibration Curve with more noise
-    const calibrationCurve = Array.from({ length: 10 }, (_, i) => ({
-      predicted: (i + 1) / 10,
-      actual: Math.max(0, Math.min(1, ((i + 1) / 10) + (random() * 0.15 - 0.075)))
-    }));
-
-    // Generate Confusion Matrix with more realistic error rates
-    const confusionMatrix = {
-      tp: Math.round(450 * (base.acc - volPenalty)),
-      tn: Math.round(400 * (base.acc - volPenalty)),
-      fp: Math.round(150 * (1 - (base.acc - volPenalty))),
-      fn: Math.round(200 * (1 - (base.acc - volPenalty)))
-    };
-
-    const accuracy = base.acc - volPenalty + (random() * noiseLevel - noiseLevel/2);
-    const rocAuc = base.auc - volPenalty + (random() * noiseLevel - noiseLevel/2);
-    const precision = base.pre - volPenalty + (random() * noiseLevel - noiseLevel/2);
-    const recall = base.rec - volPenalty + (random() * noiseLevel - noiseLevel/2);
-    const f1 = base.f1 - volPenalty + (random() * noiseLevel - noiseLevel/2);
-    const prAuc = base.pr - volPenalty + (random() * noiseLevel - noiseLevel/2);
-
-    // Update comparisonData for the current model to ensure consistency
-    const updatedComparisonData = comparisonData.map(m => {
-      if (m.name === config.modelType) {
-        return { 
-          ...m, 
-          accuracy, 
-          auc: rocAuc, 
-          precision, 
-          recall, 
-          f1, 
-          prAuc 
-        };
-      }
-      return m;
-    });
-
-    return {
-      accuracy,
-      rocAuc,
-      precision,
-      recall,
-      f1,
-      prAuc,
-      logLoss: 0.35 + random() * 0.2, // Higher log loss
-      brierScore: 0.18 + random() * 0.1, // Higher brier score
-      calibrationCurve,
-      confusionMatrix,
-      shapValues: features.sort((a, b) => b.importance - a.importance),
-      comparisonIndex: 1.05 + random() * 0.15,
-      comparisonData: updatedComparisonData
-    };
-  } else {
-    // Statistical models
-    let r2 = 0.65;
-    if (config.modelType === 'CAPM') r2 = 0.45;
-    if (config.modelType === 'FamaFrench3') r2 = 0.68;
-    if (config.modelType === 'FamaFrench5') r2 = 0.78;
-    if (config.modelType === 'FamaFrench7') r2 = 0.86;
-
-    return {
-      explanatoryPower: r2 + (random() * 0.05),
-      shapValues: features.sort((a, b) => b.importance - a.importance),
-      comparisonIndex: 1.0,
-      comparisonData
-    };
-  }
+  return {
+    mse: currentModelData.mse,
+    rmse: currentModelData.rmse,
+    mae: currentModelData.mae,
+    mape: currentModelData.mape,
+    rSquared: currentModelData.rSquared,
+    adjustedRSquared: currentModelData.adjustedRSquared,
+    shapValues: features.sort((a, b) => b.importance - a.importance),
+    comparisonIndex: 1.05 + random() * 0.15,
+    comparisonData
+  };
 };
 
 export const runSimulation = (

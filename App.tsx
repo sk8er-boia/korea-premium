@@ -286,8 +286,12 @@ const AppContent = () => {
   const safeAlt3 = simResults.alt3 || [];
   
   const defaultModelMetrics: ModelMetrics = {
-    accuracy: 0,
-    explanatoryPower: 0,
+    mse: 0,
+    rmse: 0,
+    mae: 0,
+    mape: 0,
+    rSquared: 0,
+    adjustedRSquared: 0,
     shapValues: [],
     comparisonIndex: 0
   };
